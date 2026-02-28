@@ -6,7 +6,6 @@ import { useTrainContext } from "../context/Context";
 const Hero = () => {
   const { showTrainResults, suggestions, trains } = useTrainContext();
   
-  // Check if both trains and buddies are available/visible
   const hasTrainResults = showTrainResults && trains && trains.length > 0;
   const hasBuddyResults = suggestions;
   const bothVisible = hasTrainResults && hasBuddyResults;
@@ -15,19 +14,17 @@ const Hero = () => {
   return (
     <div className={`flex flex-col items-center relative w-full ${
       bothVisible ? 'lg:max-w-none' : 'max-w-6xl'
-    } mx-auto px-4 gap-4`}>
+    } mx-auto px-4 sm:px-6 gap-4`}>
       {onlyBuddies ? (
-        // When only buddy suggestions are visible, show SearchForm at top and suggestions full width below
         <>
           <div className="w-full">
             <TrainSearchContainer />
           </div>
-          <div className="w-full">
+          <div className="w-full animate-fade-in">
             <BuddySystemContainer />
           </div>
         </>
       ) : (
-        // Normal layout for train results or both visible
         <div className={`flex flex-col lg:flex-row items-center m-auto lg:items-start w-full ${
           bothVisible ? 'lg:gap-6' : 'lg:gap-0'
         } ${
@@ -37,7 +34,7 @@ const Hero = () => {
             <TrainSearchContainer />
           </div>
           {bothVisible && <ContentDivider />}
-          <div className={`w-full ${bothVisible ? 'lg:w-1/2 lg:flex-1' : 'lg:w-auto'}`}>
+          <div className={`w-full ${bothVisible ? 'lg:w-1/2 lg:flex-1' : 'lg:w-auto'} animate-fade-in`}>
             <BuddySystemContainer />
           </div>
         </div>

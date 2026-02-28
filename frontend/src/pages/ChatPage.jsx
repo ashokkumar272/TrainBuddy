@@ -149,12 +149,11 @@ const ChatPage = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-100">
+      <div className="min-h-screen bg-surface-50">
         <Navbar />
-        <div className="container mx-auto py-8 px-4">
-          <div className="flex justify-center items-center h-64">
-            <div className="text-2xl text-gray-600">Loading chat...</div>
-          </div>
+        <div className="flex flex-col items-center justify-center min-h-screen gap-3">
+          <div className="w-8 h-8 border-3 border-primary-200 border-t-primary-600 rounded-full animate-spin" />
+          <p className="text-sm text-surface-500">Loading chat...</p>
         </div>
       </div>
     );
@@ -162,11 +161,14 @@ const ChatPage = () => {
 
   if (error || !user) {
     return (
-      <div className="min-h-screen bg-gray-100">
+      <div className="min-h-screen bg-surface-50">
         <Navbar />
-        <div className="container mx-auto py-8 px-4">
-          <div className="flex justify-center items-center h-64">
-            <div className="text-2xl text-red-600">{error || 'User not found'}</div>
+        <div className="flex items-center justify-center min-h-screen px-4">
+          <div className="flex items-center gap-3 bg-red-50 border border-red-200 text-red-700 px-5 py-4 rounded-xl">
+            <svg className="w-5 h-5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+            </svg>
+            <span className="text-sm">{error || 'User not found'}</span>
           </div>
         </div>
       </div>
@@ -174,77 +176,97 @@ const ChatPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-surface-50">
       <Navbar />
-      <div className="container mx-auto py-8 px-4">
-        <div className="bg-white rounded-lg shadow-md overflow-hidden max-w-4xl mx-auto">
-          <div className="bg-blue-600 p-6 text-white">
-            <h1 className="text-3xl font-bold">Chat with {user.name || user.username}</h1>
-          </div>
-          
-          <div className="p-6">
-            <div className="bg-gray-100 p-4 rounded-lg min-h-[300px] max-h-[500px] overflow-y-auto">
-              {messages.length > 0 ? (
-                messages.map((msg, index) => (
-                  <div 
-                    key={index} 
-                    className={`mb-2 p-3 rounded-lg max-w-[80%] ${
-                      msg.sender === currentUserId 
-                        ? 'bg-blue-500 text-white ml-auto' 
-                        : 'bg-gray-300 text-black'
-                    }`}
-                  >
-                    <p className="break-words">{msg.content}</p>
-                    <span className={`text-xs ${msg.sender === currentUserId ? 'text-blue-100' : 'text-gray-600'} block mt-1`}>
-                      {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                    </span>
-                  </div>
-                ))
-              ) : (
-                <div className="flex items-center justify-center h-64">
-                  <p className="text-gray-500">No messages yet. Start the conversation!</p>
-                </div>
-              )}
-              <div ref={messagesEndRef} />
-            </div>
-            
-            <div className="mt-4">
-              <div className="flex">
-                <textarea
-                  value={newMessage}
-                  onChange={(e) => setNewMessage(e.target.value)}
-                  onKeyDown={handleKeyDown}
-                  className="flex-grow border border-gray-300 p-2 rounded-l-lg focus:outline-none resize-none"
-                  placeholder="Type a message..."
-                  rows={2}
-                  disabled={sending}
-                />
-                <button
-                  onClick={sendMessage}
-                  disabled={sending || !newMessage.trim()}
-                  className="bg-blue-600 text-white px-4 py-2 rounded-r-lg hover:bg-blue-700 disabled:bg-blue-300"
-                >
-                  {sending ? 'Sending...' : 'Send'}
-                </button>
-              </div>
-              <p className="text-xs text-gray-500 mt-1">Press Enter to send, Shift+Enter for new line</p>
-            </div>
-            
-            <div className="mt-4 flex justify-between">
-              <button 
-                onClick={() => navigate(`/user-profile/${userId}`)}
-                className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg transition-colors"
-              >
-                View Profile
-              </button>
-              
-              <button 
+      <div className="max-w-3xl mx-auto px-2 sm:px-4 pt-20 pb-6 animate-fade-in">
+        <div className="card overflow-hidden !rounded-2xl">
+          {/* Chat header */}
+          <div className="bg-gradient-to-r from-primary-600 to-primary-700 px-5 py-4 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <button
                 onClick={() => navigate(-1)}
-                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors"
+                className="w-8 h-8 rounded-lg bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors"
               >
-                Go Back
+                <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                </svg>
+              </button>
+              <div>
+                <h1 className="text-base font-bold text-white">{user.name || user.username}</h1>
+                <p className="text-xs text-primary-200">Active chat</p>
+              </div>
+            </div>
+            <button
+              onClick={() => navigate(`/user-profile/${userId}`)}
+              className="text-xs text-primary-200 hover:text-white transition-colors font-medium"
+            >
+              View Profile
+            </button>
+          </div>
+
+          {/* Messages area */}
+          <div className="bg-surface-50 p-3 sm:p-4 min-h-[300px] max-h-[500px] overflow-y-auto scrollbar-thin">
+            {messages.length > 0 ? (
+              <div className="space-y-2">
+                {messages.map((msg, index) => (
+                  <div
+                    key={index}
+                    className={`flex ${msg.sender === currentUserId ? 'justify-end' : 'justify-start'}`}
+                  >
+                    <div
+                      className={`max-w-[85%] sm:max-w-[75%] px-3.5 py-2.5 rounded-2xl ${
+                        msg.sender === currentUserId
+                          ? 'bg-primary-600 text-white rounded-br-md'
+                          : 'bg-white text-surface-800 border border-surface-200 rounded-bl-md'
+                      }`}
+                    >
+                      <p className="text-sm break-words leading-relaxed">{msg.content}</p>
+                      <span className={`text-[10px] block mt-1 ${
+                        msg.sender === currentUserId ? 'text-primary-200' : 'text-surface-400'
+                      }`}>
+                        {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="flex flex-col items-center justify-center h-48 gap-3">
+                <div className="w-12 h-12 bg-surface-100 rounded-2xl flex items-center justify-center">
+                  <svg className="w-6 h-6 text-surface-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                  </svg>
+                </div>
+                <p className="text-sm text-surface-500">No messages yet</p>
+                <p className="text-xs text-surface-400">Start the conversation!</p>
+              </div>
+            )}
+            <div ref={messagesEndRef} />
+          </div>
+
+          {/* Message input */}
+          <div className="border-t border-surface-200 p-3 sm:p-4">
+            <div className="flex gap-2">
+              <textarea
+                value={newMessage}
+                onChange={(e) => setNewMessage(e.target.value)}
+                onKeyDown={handleKeyDown}
+                className="flex-1 input !rounded-xl resize-none text-sm"
+                placeholder="Type a message..."
+                rows={1}
+                disabled={sending}
+              />
+              <button
+                onClick={sendMessage}
+                disabled={sending || !newMessage.trim()}
+                className="btn-primary !rounded-xl px-4 flex-shrink-0 disabled:opacity-50"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                </svg>
               </button>
             </div>
+            <p className="text-[10px] text-surface-400 mt-1.5">Enter to send, Shift+Enter for new line</p>
           </div>
         </div>
       </div>

@@ -177,21 +177,47 @@ const Suggested = ({ id, name, profession, bio, isFriend: initialIsFriend, trave
     navigate(`/chat/${id}`);
   };
 
+  // Generate avatar initials
+  const initials = name
+    ? name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2)
+    : '?';
+  const avatarColors = [
+    'bg-primary-500', 'bg-accent-500', 'bg-violet-500',
+    'bg-amber-500', 'bg-rose-500', 'bg-teal-500'
+  ];
+  const colorIndex = name ? name.charCodeAt(0) % avatarColors.length : 0;
+
   return (
-    <div className='bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer overflow-hidden' onClick={viewProfile}>
-      <div className='p-4 border-b border-gray-100'>
-        <div className='flex justify-between items-start gap-3'>
-          <div className='flex-1 min-w-0'>
-            <h3 className='font-semibold text-base text-gray-900 mb-0.5 truncate'>{name}</h3>
-            {profession && <p className='text-gray-600 text-xs mb-1'>{profession}</p>}
-            {bio && <p className='text-gray-700 text-xs italic line-clamp-2'>{bio}</p>}
+    <div
+      className="card-hover !rounded-xl cursor-pointer overflow-hidden animate-fade-in"
+      onClick={viewProfile}
+    >
+      {/* User info header */}
+      <div className="p-4">
+        <div className="flex items-start gap-3">
+          {/* Avatar */}
+          <div className={`w-10 h-10 rounded-xl ${avatarColors[colorIndex]} flex items-center justify-center flex-shrink-0`}>
+            <span className="text-white text-sm font-bold">{initials}</span>
           </div>
-          <div className='flex-shrink-0'>
+
+          {/* Name + profession */}
+          <div className="flex-1 min-w-0">
+            <h3 className="font-semibold text-sm text-surface-900 truncate">{name}</h3>
+            {profession && (
+              <p className="text-xs text-surface-500 mt-0.5">{profession}</p>
+            )}
+            {bio && (
+              <p className="text-xs text-surface-600 mt-1 line-clamp-2 italic">{bio}</p>
+            )}
+          </div>
+
+          {/* Action buttons */}
+          <div className="flex-shrink-0" onClick={(e) => e.stopPropagation()}>
             {isFriend ? (
-              <div className="flex gap-2">
+              <div className="flex gap-1.5">
                 <button
                   onClick={goToChat}
-                  className='bg-green-500 hover:bg-green-600 text-white text-sm px-3 py-1.5 rounded-md shadow-sm'
+                  className="btn-accent btn-xs"
                 >
                   Chat
                 </button>
@@ -201,9 +227,9 @@ const Suggested = ({ id, name, profession, bio, isFriend: initialIsFriend, trave
                     handleRemoveFriend();
                   }}
                   disabled={inviting}
-                  className='bg-red-500 hover:bg-red-600 text-white text-sm px-3 py-1.5 rounded-md shadow-sm disabled:bg-gray-400 disabled:cursor-not-allowed'
+                  className="btn-ghost btn-xs !text-red-500 hover:!bg-red-50"
                 >
-                  {inviting ? 'Removing...' : 'Remove'}
+                  {inviting ? '...' : 'Remove'}
                 </button>
               </div>
             ) : (
@@ -213,79 +239,81 @@ const Suggested = ({ id, name, profession, bio, isFriend: initialIsFriend, trave
                   handleInvite();
                 }}
                 disabled={inviting}
-                className={`${
+                className={`btn-xs ${
                   invited
-                    ? 'bg-red-500 hover:bg-red-600'
-                    : 'bg-blue-500 hover:bg-blue-600'
-                } text-white text-sm px-4 py-1.5 rounded-md shadow-sm disabled:bg-gray-400 disabled:cursor-not-allowed`}
+                    ? 'btn-danger'
+                    : 'btn-primary'
+                }`}
               >
-                {inviting ? (invited ? 'Deleting...' : 'Sending...') : invited ? 'Delete Invite' : 'Invite'}
+                {inviting
+                  ? (invited ? 'Cancelling...' : 'Sending...')
+                  : invited ? 'Cancel Invite' : 'Invite'
+                }
               </button>
             )}
           </div>
         </div>
       </div>
 
+      {/* Travel details card */}
       {travelDetails && (travelDetails.trainNumber || travelDetails.preferredClass || travelDetails.boardingStation || travelDetails.destinationStation) && (
-        <div className='px-4 pb-4'>
-          <div className='bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-3 border border-blue-200 shadow-sm'>
-            {/* Train Header */}
+        <div className="px-4 pb-4">
+          <div className="bg-primary-50/60 rounded-xl p-3 border border-primary-100">
+            {/* Train header */}
             {(travelDetails.trainNumber || travelDetails.trainName) && (
-              <div className='flex items-center justify-between mb-3 pb-2 border-b border-blue-200'>
-                <div className='flex items-center gap-2'>
-                  <div className='w-2 h-2 bg-blue-600 rounded-full'></div>
-                  <span className='text-blue-800 text-sm font-semibold'>
+              <div className="flex items-center justify-between mb-2.5 pb-2 border-b border-primary-100">
+                <div className="flex items-center gap-2">
+                  <div className="w-1.5 h-1.5 bg-primary-500 rounded-full" />
+                  <span className="text-primary-800 text-xs font-semibold">
                     {travelDetails.trainNumber && `${travelDetails.trainNumber}`}
                     {travelDetails.trainName && ` - ${travelDetails.trainName}`}
                   </span>
                 </div>
                 {travelDetails.preferredClass && (
-                  <span className='bg-blue-600 text-white text-xs px-2 py-1 rounded-full font-medium'>
+                  <span className="badge-primary text-[10px]">
                     {travelDetails.preferredClass}
                   </span>
                 )}
               </div>
             )}
-            
-            {/* Route Information */}
-            <div className='flex items-center justify-between'>
-              {/* From Station */}
-              <div className='flex-1'>
-                <div className='text-sm font-semibold text-gray-800'>
+
+            {/* Route */}
+            <div className="flex items-center justify-between">
+              <div className="flex-1">
+                <p className="text-xs font-semibold text-surface-800">
                   {travelDetails.boardingStationName || travelDetails.boardingStation}
-                </div>
+                </p>
                 {travelDetails.boardingStationName && travelDetails.boardingStation && (
-                  <div className='text-xs text-gray-500'>{travelDetails.boardingStation}</div>
+                  <p className="text-[10px] text-surface-500">{travelDetails.boardingStation}</p>
                 )}
               </div>
-              
-              {/* Arrow */}
-              <div className='flex-shrink-0 mx-3'>
-                <div className='flex items-center'>
-                  <div className='w-6 h-0.5 bg-blue-400'></div>
-                  <div className='w-2 h-2 border-r-2 border-t-2 border-blue-400 transform rotate-45 -ml-1'></div>
-                </div>
+
+              <div className="flex items-center mx-2">
+                <div className="w-1.5 h-1.5 rounded-full bg-primary-400" />
+                <div className="w-8 h-px bg-primary-300" />
+                <svg className="w-2.5 h-2.5 text-primary-400 -ml-0.5" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clipRule="evenodd" />
+                </svg>
               </div>
-              
-              {/* To Station */}
-              <div className='flex-1 text-right'>
-                <div className='text-sm font-semibold text-gray-800'>
+
+              <div className="flex-1 text-right">
+                <p className="text-xs font-semibold text-surface-800">
                   {travelDetails.destinationStationName || travelDetails.destinationStation}
-                </div>
+                </p>
                 {travelDetails.destinationStationName && travelDetails.destinationStation && (
-                  <div className='text-xs text-gray-500'>{travelDetails.destinationStation}</div>
+                  <p className="text-[10px] text-surface-500">{travelDetails.destinationStation}</p>
                 )}
               </div>
             </div>
-            
-            {/* Travel Date */}
+
+            {/* Travel date */}
             {travelDetails.travelDate && (
-              <div className='mt-3 pt-2 border-t border-blue-200'>
-                <div className='flex items-center justify-center gap-2'>
-                  <svg className='w-4 h-4 text-blue-600' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
-                    <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z' />
+              <div className="mt-2 pt-2 border-t border-primary-100">
+                <div className="flex items-center justify-center gap-1.5">
+                  <svg className="w-3 h-3 text-primary-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                   </svg>
-                  <span className='text-sm text-blue-700 font-medium'>
+                  <span className="text-[11px] text-primary-700 font-medium">
                     {new Date(travelDetails.travelDate).toLocaleDateString('en-IN', {
                       weekday: 'short',
                       year: 'numeric',
@@ -300,15 +328,22 @@ const Suggested = ({ id, name, profession, bio, isFriend: initialIsFriend, trave
         </div>
       )}
 
+      {/* Status messages */}
       {(error || successMessage) && (
-        <div className='px-4 pb-3'>
+        <div className="px-4 pb-3">
           {error && (
-            <div className='bg-red-50 border border-red-200 text-red-700 text-xs px-3 py-2 rounded-md'>
+            <div className="flex items-center gap-2 bg-red-50 border border-red-200 text-red-700 text-xs px-3 py-2 rounded-lg">
+              <svg className="w-3.5 h-3.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+              </svg>
               {error}
             </div>
           )}
           {successMessage && (
-            <div className='bg-green-50 border border-green-200 text-green-700 text-xs px-3 py-2 rounded-md'>
+            <div className="flex items-center gap-2 bg-accent-50 border border-accent-200 text-accent-700 text-xs px-3 py-2 rounded-lg">
+              <svg className="w-3.5 h-3.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+              </svg>
               {successMessage}
             </div>
           )}

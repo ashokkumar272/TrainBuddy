@@ -184,278 +184,254 @@ const Dashboard = () => {
   
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-100">
+      <div className="min-h-screen bg-surface-50">
         <Navbar />
-        <div className="flex items-center justify-center min-h-screen">
-          <p className="text-lg text-gray-600">Loading...</p>
+        <div className="flex flex-col items-center justify-center min-h-screen gap-3">
+          <div className="w-8 h-8 border-3 border-primary-200 border-t-primary-600 rounded-full animate-spin" />
+          <p className="text-sm text-surface-500">Loading dashboard...</p>
         </div>
       </div>
     );
   }
-  
+
   if (error) {
     return (
-      <div className="min-h-screen bg-gray-100">
+      <div className="min-h-screen bg-surface-50">
         <Navbar />
-        <div className="flex items-center justify-center min-h-screen">
-          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+        <div className="flex items-center justify-center min-h-screen px-4">
+          <div className="flex items-center gap-3 bg-red-50 border border-red-200 text-red-700 px-5 py-4 rounded-xl max-w-md">
+            <svg className="w-5 h-5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+            </svg>
             {error}
           </div>
         </div>
       </div>
     );
   }
-  
+
   if (!userData) {
     return (
-      <div className="min-h-screen bg-gray-100">
+      <div className="min-h-screen bg-surface-50">
         <Navbar />
         <div className="flex items-center justify-center min-h-screen">
-          <p className="text-lg text-gray-600">No user data found.</p>
+          <p className="text-sm text-surface-500">No user data found.</p>
         </div>
       </div>
     );
   }
-  
+
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-surface-50">
       <Navbar />
-      <div className="max-w-4xl mx-auto py-8 px-4 pt-24">
-        <h1 className="text-3xl font-bold text-gray-800 mb-6">Profile Dashboard</h1>
-        
-        <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-          <h2 className="text-xl font-semibold text-gray-700 mb-4">Personal Information</h2>
-          
+      <div className="max-w-4xl mx-auto py-8 px-4 pt-24 animate-fade-in">
+        {/* Page header */}
+        <div className="mb-8">
+          <h1 className="text-2xl md:text-3xl font-bold text-surface-900">Dashboard</h1>
+          <p className="text-sm text-surface-500 mt-1">Manage your profile and connections</p>
+        </div>
+
+        {/* Personal Information */}
+        <div className="card p-5 md:p-6 mb-5">
+          <h2 className="section-title flex items-center gap-2 mb-4">
+            <svg className="w-5 h-5 text-primary-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+            </svg>
+            Personal Information
+          </h2>
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <p className="text-sm text-gray-500">Username</p>
-              <p className="text-lg text-gray-800">{userData.username}</p>
-            </div>
-            <div>
-              <p className="text-sm text-gray-500">Email</p>
-              <p className="text-lg text-gray-800">{userData.email}</p>
-            </div>
-            <div>
-              <p className="text-sm text-gray-500">Name</p>
-              <p className="text-lg text-gray-800">{userData.name || 'Not set'}</p>
-            </div>
-            <div>
-              <p className="text-sm text-gray-500">Age</p>
-              <p className="text-lg text-gray-800">{userData.age || 'Not set'}</p>
-            </div>
-            <div>
-              <p className="text-sm text-gray-500">Profession</p>
-              <p className="text-lg text-gray-800">{userData.profession || 'Not set'}</p>
-            </div>
-            <div className="md:col-span-2">
-              <p className="text-sm text-gray-500">Bio</p>
-              <p className="text-lg text-gray-800">{userData.bio || 'Not set'}</p>
+            {[
+              { label: 'Username', value: userData.username },
+              { label: 'Email', value: userData.email },
+              { label: 'Name', value: userData.name },
+              { label: 'Age', value: userData.age },
+              { label: 'Profession', value: userData.profession },
+            ].map(({ label, value }) => (
+              <div key={label} className="bg-surface-50 rounded-xl p-3">
+                <p className="text-xs font-medium text-surface-500 mb-0.5">{label}</p>
+                <p className="text-sm font-semibold text-surface-900">{value || 'Not set'}</p>
+              </div>
+            ))}
+            <div className="md:col-span-2 bg-surface-50 rounded-xl p-3">
+              <p className="text-xs font-medium text-surface-500 mb-0.5">Bio</p>
+              <p className="text-sm text-surface-800">{userData.bio || 'Not set'}</p>
             </div>
           </div>
         </div>
-        
-        <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-semibold">Your Travel Status</h2>
-          </div>
-          
-          <div className="bg-gray-50 p-4 rounded-lg">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <p className="text-sm text-gray-500">Travel Status</p>
-                <p className="text-lg text-gray-800">
-                  {userData.travelStatus?.isActive ? 'Active' : 'Inactive'}
-                </p>
-              </div>
-              <div>
-                <p className="text-sm text-gray-500">Travel Date</p>
-                <p className="text-lg text-gray-800">
-                  {userData.travelStatus?.travelDate ? formatDate(userData.travelStatus.travelDate) : 'Not set'}
-                </p>
-              </div>
-              <div>
-                <p className="text-sm text-gray-500">Boarding Station</p>
-                <p className="text-lg text-gray-800">
-                  {userData.travelStatus?.boardingStation || 'Not set'}
-                </p>
-              </div>
-              <div>
-                <p className="text-sm text-gray-500">Destination Station</p>
-                <p className="text-lg text-gray-800">
-                  {userData.travelStatus?.destinationStation || 'Not set'}
-                </p>
-              </div>
-              {userData.travelStatus?.trainNumber && (
-                <div>
-                  <p className="text-sm text-gray-500">Train</p>
-                  <p className="text-lg text-gray-800">
-                    {userData.travelStatus.trainNumber}
-                  </p>
+
+        {/* Travel Status */}
+        <div className="card p-5 md:p-6 mb-5">
+          <h2 className="section-title flex items-center gap-2 mb-4">
+            <svg className="w-5 h-5 text-primary-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+            Travel Status
+          </h2>
+
+          <div className="bg-surface-50 rounded-xl p-4">
+            <div className="flex items-center gap-2 mb-3">
+              <span className={`w-2 h-2 rounded-full ${userData.travelStatus?.isActive ? 'bg-accent-500' : 'bg-surface-400'}`} />
+              <span className={`text-sm font-semibold ${userData.travelStatus?.isActive ? 'text-accent-700' : 'text-surface-500'}`}>
+                {userData.travelStatus?.isActive ? 'Active' : 'Inactive'}
+              </span>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              {[
+                { label: 'Travel Date', value: userData.travelStatus?.travelDate ? formatDate(userData.travelStatus.travelDate) : null },
+                { label: 'Boarding Station', value: userData.travelStatus?.boardingStation },
+                { label: 'Destination Station', value: userData.travelStatus?.destinationStation },
+                { label: 'Train', value: userData.travelStatus?.trainNumber },
+                { label: 'Class', value: userData.travelStatus?.preferredClass },
+              ].filter(item => item.value).map(({ label, value }) => (
+                <div key={label} className="flex items-center gap-2">
+                  <span className="text-xs text-surface-500">{label}:</span>
+                  <span className="text-sm font-medium text-surface-800">{value}</span>
                 </div>
-              )}
-              {userData.travelStatus?.preferredClass && (
-                <div>
-                  <p className="text-sm text-gray-500">Class</p>
-                  <p className="text-lg text-gray-800">
-                    {userData.travelStatus.preferredClass}
-                  </p>
-                </div>
-              )}
+              ))}
             </div>
           </div>
         </div>
-        
-        {/* Friend Requests Section */}
-        <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-          <h2 className="text-xl font-semibold text-gray-700 mb-4">Friend Requests</h2>
-          
-          {/* Incoming Requests */}
-          <div className="mb-6">
-            <h3 className="text-lg font-medium text-gray-700 mb-3">Incoming Requests 
-              {friendRequests.incoming.length > 0 && 
-                <span className="ml-2 bg-red-500 text-white text-xs px-2 py-1 rounded-full">
-                  {friendRequests.incoming.length}
-                </span>
-              }
+
+        {/* Friend Requests */}
+        <div className="card p-5 md:p-6 mb-5">
+          <h2 className="section-title flex items-center gap-2 mb-4">
+            <svg className="w-5 h-5 text-primary-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+            </svg>
+            Friend Requests
+          </h2>
+
+          {/* Incoming */}
+          <div className="mb-5">
+            <h3 className="text-sm font-semibold text-surface-700 mb-2 flex items-center gap-2">
+              Incoming
+              {friendRequests.incoming.length > 0 && (
+                <span className="badge-danger text-[10px]">{friendRequests.incoming.length}</span>
+              )}
             </h3>
-            
+
             {friendRequests.incoming.length > 0 ? (
-              <div className="divide-y divide-gray-100">
+              <div className="space-y-2">
                 {friendRequests.incoming.map(request => (
-                  <div key={request._id} className="py-3 flex items-center justify-between">
-                    <div className="flex items-center cursor-pointer" onClick={() => viewUserProfile(request.sender._id)}>
+                  <div key={request._id} className="flex items-center justify-between p-3 bg-surface-50 rounded-xl">
+                    <div className="flex items-center gap-3 cursor-pointer" onClick={() => viewUserProfile(request.sender._id)}>
+                      <div className="w-9 h-9 rounded-xl bg-primary-100 flex items-center justify-center">
+                        <span className="text-xs font-bold text-primary-600">
+                          {(request.sender.name || request.sender.username || '?').charAt(0).toUpperCase()}
+                        </span>
+                      </div>
                       <div>
-                        <p className="font-medium text-gray-800">{request.sender.name || request.sender.username}</p>
+                        <p className="text-sm font-semibold text-surface-900">{request.sender.name || request.sender.username}</p>
                         {request.sender.profession && (
-                          <p className="text-sm text-gray-500">{request.sender.profession}</p>
+                          <p className="text-xs text-surface-500">{request.sender.profession}</p>
                         )}
                       </div>
                     </div>
-                    <div className="flex gap-2">
-                      <button 
-                        onClick={() => handleAcceptRequest(request._id)}
-                        className="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded text-sm"
-                      >
-                        Accept
-                      </button>
-                      <button 
-                        onClick={() => handleRejectRequest(request._id)}
-                        className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm"
-                      >
-                        Reject
-                      </button>
+                    <div className="flex gap-1.5">
+                      <button onClick={() => handleAcceptRequest(request._id)} className="btn-accent btn-xs">Accept</button>
+                      <button onClick={() => handleRejectRequest(request._id)} className="btn-ghost btn-xs !text-red-500 hover:!bg-red-50">Reject</button>
                     </div>
                   </div>
                 ))}
               </div>
             ) : (
-              <p className="text-gray-500 italic">No incoming friend requests</p>
+              <p className="text-xs text-surface-400 italic py-2">No incoming requests</p>
             )}
           </div>
-          
-          {/* Outgoing Requests */}
+
+          {/* Outgoing */}
           <div>
-            <h3 className="text-lg font-medium text-gray-700 mb-3">Sent Requests 
-              {friendRequests.outgoing.length > 0 && 
-                <span className="ml-2 bg-blue-500 text-white text-xs px-2 py-1 rounded-full">
-                  {friendRequests.outgoing.length}
-                </span>
-              }
+            <h3 className="text-sm font-semibold text-surface-700 mb-2 flex items-center gap-2">
+              Sent
+              {friendRequests.outgoing.length > 0 && (
+                <span className="badge-primary text-[10px]">{friendRequests.outgoing.length}</span>
+              )}
             </h3>
-            
+
             {friendRequests.outgoing.length > 0 ? (
-              <div className="divide-y divide-gray-100">
+              <div className="space-y-2">
                 {friendRequests.outgoing.map(request => (
-                  <div key={request._id} className="py-3 flex items-center justify-between">
-                    <div className="flex items-center cursor-pointer" onClick={() => viewUserProfile(request.receiver._id)}>
+                  <div key={request._id} className="flex items-center justify-between p-3 bg-surface-50 rounded-xl">
+                    <div className="flex items-center gap-3 cursor-pointer" onClick={() => viewUserProfile(request.receiver._id)}>
+                      <div className="w-9 h-9 rounded-xl bg-surface-200 flex items-center justify-center">
+                        <span className="text-xs font-bold text-surface-600">
+                          {(request.receiver.name || request.receiver.username || '?').charAt(0).toUpperCase()}
+                        </span>
+                      </div>
                       <div>
-                        <p className="font-medium text-gray-800">{request.receiver.name || request.receiver.username}</p>
-                        {request.receiver.profession && (
-                          <p className="text-sm text-gray-500">{request.receiver.profession}</p>
-                        )}
-                        <p className="text-xs text-gray-400">
-                          Status: <span className="capitalize">{request.status}</span>
-                        </p>
+                        <p className="text-sm font-semibold text-surface-900">{request.receiver.name || request.receiver.username}</p>
+                        <p className="text-[10px] text-surface-400 capitalize">{request.status}</p>
                       </div>
                     </div>
                     {request.status === 'pending' && (
-                      <button 
-                        onClick={() => handleCancelRequest(request._id)}
-                        className="bg-gray-500 hover:bg-gray-600 text-white px-3 py-1 rounded text-sm"
-                      >
-                        Cancel
-                      </button>
+                      <button onClick={() => handleCancelRequest(request._id)} className="btn-ghost btn-xs">Cancel</button>
                     )}
                   </div>
                 ))}
               </div>
             ) : (
-              <p className="text-gray-500 italic">No outgoing friend requests</p>
+              <p className="text-xs text-surface-400 italic py-2">No sent requests</p>
             )}
           </div>
         </div>
-        
-        {/* Friends List Section */}
-        <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+
+        {/* Friends List */}
+        <div className="card p-5 md:p-6 mb-5">
           <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-semibold text-gray-700">My Friends 
-              {friends.length > 0 && 
-                <span className="ml-2 bg-green-500 text-white text-xs px-2 py-1 rounded-full">
-                  {friends.length}
-                </span>
-              }
+            <h2 className="section-title flex items-center gap-2">
+              <svg className="w-5 h-5 text-primary-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+              My Friends
+              {friends.length > 0 && (
+                <span className="badge-accent text-[10px]">{friends.length}</span>
+              )}
             </h2>
             {friends.length > 0 && (
-              <button
-                onClick={() => navigate('/friends')}
-                className="bg-blue-600 hover:bg-blue-700 text-white text-sm px-4 py-2 rounded-lg transition-colors"
-              >
-                View All Friends
+              <button onClick={() => navigate('/friends')} className="btn-secondary btn-sm">
+                View All
               </button>
             )}
           </div>
-          
+
           {loadingFriends ? (
-            <div className="py-8 text-center">
-              <p className="text-gray-500">Loading friends...</p>
+            <div className="flex flex-col items-center py-8 gap-2">
+              <div className="w-6 h-6 border-2 border-primary-200 border-t-primary-600 rounded-full animate-spin" />
+              <p className="text-xs text-surface-500">Loading friends...</p>
             </div>
           ) : friends.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
               {friends.map(friend => (
-                <div 
-                  key={friend._id} 
-                  className="bg-gray-50 p-4 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
+                <div
+                  key={friend._id}
+                  className="bg-surface-50 p-3.5 rounded-xl hover:bg-surface-100 transition-colors cursor-pointer group"
                 >
-                  <div className="flex justify-between items-start mb-2">
-                    <div onClick={() => viewUserProfile(friend._id)}>
-                      <p className="font-medium text-gray-800">{friend.name || friend.username}</p>
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="flex-1 min-w-0" onClick={() => viewUserProfile(friend._id)}>
+                      <p className="text-sm font-semibold text-surface-900 truncate">{friend.name || friend.username}</p>
                       {friend.profession && (
-                        <p className="text-sm text-gray-500">{friend.profession}</p>
+                        <p className="text-xs text-surface-500 truncate">{friend.profession}</p>
                       )}
-                      <div className="flex items-center mt-1">
-                        <span className={`w-2 h-2 rounded-full mr-1 ${friend.online ? 'bg-green-500' : 'bg-gray-400'}`}></span>
-                        <span className="text-xs text-gray-500">
-                          {friend.online ? 'Online' : `Last seen: ${formatLastSeen(friend.lastSeen)}`}
+                      <div className="flex items-center gap-1.5 mt-1.5">
+                        <span className={`w-1.5 h-1.5 rounded-full ${friend.online ? 'bg-accent-500' : 'bg-surface-400'}`} />
+                        <span className="text-[10px] text-surface-400">
+                          {friend.online ? 'Online' : `${formatLastSeen(friend.lastSeen)}`}
                         </span>
                       </div>
                     </div>
-                    <div className="flex gap-2">                    <div className="flex gap-2">
-                      <button 
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          navigate(`/chat/${friend._id}`);
-                        }}
-                        className="bg-green-600 hover:bg-green-700 text-white text-sm px-3 py-1 rounded transition-colors"
+                    <div className="flex gap-1 flex-shrink-0">
+                      <button
+                        onClick={(e) => { e.stopPropagation(); navigate(`/chat/${friend._id}`); }}
+                        className="btn-accent btn-xs"
                       >
                         Chat
                       </button>
-                    </div>
-                      <button 
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleRemoveFriend(friend._id, friend.name || friend.username);
-                        }}
-                        className="bg-red-600 hover:bg-red-700 text-white text-sm px-3 py-1 rounded transition-colors"
+                      <button
+                        onClick={(e) => { e.stopPropagation(); handleRemoveFriend(friend._id, friend.name || friend.username); }}
+                        className="btn-ghost btn-xs !text-red-500 hover:!bg-red-50"
                       >
                         Remove
                       </button>
@@ -465,8 +441,14 @@ const Dashboard = () => {
               ))}
             </div>
           ) : (
-            <div className="py-8 text-center">
-              <p className="text-gray-500">You don't have any friends yet. Start by finding travel buddies!</p>
+            <div className="flex flex-col items-center py-10 gap-3">
+              <div className="w-14 h-14 bg-surface-100 rounded-2xl flex items-center justify-center">
+                <svg className="w-7 h-7 text-surface-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+              </div>
+              <p className="text-sm text-surface-500">No friends yet</p>
+              <p className="text-xs text-surface-400">Find travel buddies to connect with!</p>
             </div>
           )}
         </div>

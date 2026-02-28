@@ -79,140 +79,129 @@ const FriendsPage = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-100">
+      <div className="min-h-screen bg-surface-50">
         <Navbar />
-        <div className="container mx-auto py-8 px-4">
-          <div className="flex justify-center items-center h-64">
-            <div className="text-2xl text-gray-600">Loading friends...</div>
-          </div>
+        <div className="flex flex-col items-center justify-center min-h-screen gap-3">
+          <div className="w-8 h-8 border-3 border-primary-200 border-t-primary-600 rounded-full animate-spin" />
+          <p className="text-sm text-surface-500">Loading friends...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-surface-50">
       <Navbar />
-      <div className="container mx-auto py-8 px-4">
-        <div className="bg-white rounded-lg shadow-md overflow-hidden">
-          {/* Header */}
-          <div className="bg-blue-600 p-6 text-white">
-            <div className="flex justify-between items-center">
-              <div>
-                <h1 className="text-3xl font-bold">My Friends</h1>
-                <p className="text-blue-100 mt-2">
-                  {friends.length} {friends.length === 1 ? 'friend' : 'friends'}
-                </p>
-              </div>
-              <button
-                onClick={() => navigate('/dashboard')}
-                className="bg-blue-700 hover:bg-blue-800 text-white px-4 py-2 rounded-lg transition-colors"
-              >
-                Back to Dashboard
-              </button>
-            </div>
+      <div className="max-w-5xl mx-auto px-4 pt-24 pb-8 animate-fade-in">
+        {/* Header */}
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+          <div>
+            <h1 className="text-2xl md:text-3xl font-bold text-surface-900">My Friends</h1>
+            <p className="text-sm text-surface-500 mt-1">
+              {friends.length} {friends.length === 1 ? 'friend' : 'friends'}
+            </p>
           </div>
+          <button onClick={() => navigate('/dashboard')} className="btn-secondary btn-sm">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+            Dashboard
+          </button>
+        </div>
 
-          {/* Search Bar */}
-          <div className="p-6 border-b border-gray-200">
-            <div className="relative">
-              <input
-                type="text"
-                placeholder="Search friends by name, username, or profession..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              />
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
-              </div>
-            </div>
-          </div>
-
-          {/* Friends List */}
-          <div className="p-6">
-            {filteredFriends.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {filteredFriends.map(friend => (
-                  <div 
-                    key={friend._id} 
-                    className="bg-gray-50 border border-gray-200 rounded-lg p-6 hover:shadow-md transition-all duration-200"
-                  >
-                    {/* Friend Info */}
-                    <div 
-                      className="cursor-pointer mb-4"
-                      onClick={() => navigate(`/user-profile/${friend._id}`)}
-                    >
-                      <h3 className="font-semibold text-lg text-gray-900 mb-1">
-                        {friend.name || friend.username}
-                      </h3>
-                      {friend.profession && (
-                        <p className="text-gray-600 text-sm mb-2">{friend.profession}</p>
-                      )}
-                      {friend.bio && (
-                        <p className="text-gray-700 text-sm italic line-clamp-2 mb-3">{friend.bio}</p>
-                      )}
-                      
-                      {/* Online Status */}
-                      <div className="flex items-center mb-3">
-                        <span className={`w-3 h-3 rounded-full mr-2 ${friend.online ? 'bg-green-500' : 'bg-gray-400'}`}></span>
-                        <span className="text-sm text-gray-500">
-                          {friend.online ? 'Online' : `Last seen: ${formatLastSeen(friend.lastSeen)}`}
-                        </span>
-                      </div>
-                    </div>
-                    
-                    {/* Action Buttons */}
-                    <div className="flex gap-2">
-                      <button 
-                        onClick={() => navigate(`/chat/${friend._id}`)}
-                        className="flex-1 bg-green-600 hover:bg-green-700 text-white text-sm py-2 px-4 rounded-lg transition-colors"
-                      >
-                        💬 Chat
-                      </button>
-                      <button 
-                        onClick={() => handleRemoveFriend(friend._id, friend.name || friend.username)}
-                        disabled={removingFriend === friend._id}
-                        className="flex-1 bg-red-600 hover:bg-red-700 text-white text-sm py-2 px-4 rounded-lg transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
-                      >
-                        {removingFriend === friend._id ? '⏳ Removing...' : '🗑️ Remove'}
-                      </button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-12">
-                {searchTerm ? (
-                  <div>
-                    <div className="text-gray-400 text-6xl mb-4">🔍</div>
-                    <p className="text-gray-500 text-lg">No friends found matching "{searchTerm}"</p>
-                    <button
-                      onClick={() => setSearchTerm('')}
-                      className="mt-4 text-blue-600 hover:text-blue-800 font-medium"
-                    >
-                      Clear search
-                    </button>
-                  </div>
-                ) : (
-                  <div>
-                    <div className="text-gray-400 text-6xl mb-4">👥</div>
-                    <p className="text-gray-500 text-lg mb-4">You don't have any friends yet.</p>
-                    <p className="text-gray-400 mb-6">Start by finding travel buddies and sending friend requests!</p>
-                    <button
-                      onClick={() => navigate('/')}
-                      className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg transition-colors"
-                    >
-                      Find Travel Buddies
-                    </button>
-                  </div>
-                )}
-              </div>
-            )}
+        {/* Search */}
+        <div className="mb-6">
+          <div className="relative">
+            <svg className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-surface-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+            <input
+              type="text"
+              placeholder="Search by name, username, or profession..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="input pl-10 !rounded-xl"
+            />
           </div>
         </div>
+
+        {/* Friends grid */}
+        {filteredFriends.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {filteredFriends.map(friend => (
+              <div
+                key={friend._id}
+                className="card-hover !rounded-xl p-5"
+              >
+                <div
+                  className="cursor-pointer mb-3"
+                  onClick={() => navigate(`/user-profile/${friend._id}`)}
+                >
+                  <h3 className="font-semibold text-surface-900 truncate">
+                    {friend.name || friend.username}
+                  </h3>
+                  {friend.profession && (
+                    <p className="text-xs text-surface-500 mt-0.5">{friend.profession}</p>
+                  )}
+                  {friend.bio && (
+                    <p className="text-xs text-surface-600 italic line-clamp-2 mt-2">{friend.bio}</p>
+                  )}
+                  <div className="flex items-center gap-1.5 mt-2.5">
+                    <span className={`w-2 h-2 rounded-full ${friend.online ? 'bg-accent-500' : 'bg-surface-400'}`} />
+                    <span className="text-[11px] text-surface-400">
+                      {friend.online ? 'Online' : `${formatLastSeen(friend.lastSeen)}`}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="flex gap-2 pt-3 border-t border-surface-100">
+                  <button
+                    onClick={() => navigate(`/chat/${friend._id}`)}
+                    className="btn-accent btn-sm flex-1"
+                  >
+                    Chat
+                  </button>
+                  <button
+                    onClick={() => handleRemoveFriend(friend._id, friend.name || friend.username)}
+                    disabled={removingFriend === friend._id}
+                    className="btn-ghost btn-sm flex-1 !text-red-500 hover:!bg-red-50"
+                  >
+                    {removingFriend === friend._id ? 'Removing...' : 'Remove'}
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="flex flex-col items-center py-16 gap-4">
+            {searchTerm ? (
+              <>
+                <div className="w-16 h-16 bg-surface-100 rounded-2xl flex items-center justify-center">
+                  <svg className="w-8 h-8 text-surface-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                  </svg>
+                </div>
+                <p className="text-sm text-surface-500">No friends matching "{searchTerm}"</p>
+                <button onClick={() => setSearchTerm('')} className="btn-ghost btn-sm text-primary-600">
+                  Clear search
+                </button>
+              </>
+            ) : (
+              <>
+                <div className="w-16 h-16 bg-surface-100 rounded-2xl flex items-center justify-center">
+                  <svg className="w-8 h-8 text-surface-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+                  </svg>
+                </div>
+                <p className="text-sm text-surface-500 font-medium">No friends yet</p>
+                <p className="text-xs text-surface-400">Find travel buddies and send friend requests!</p>
+                <button onClick={() => navigate('/')} className="btn-primary btn-sm mt-2">
+                  Find Travel Buddies
+                </button>
+              </>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

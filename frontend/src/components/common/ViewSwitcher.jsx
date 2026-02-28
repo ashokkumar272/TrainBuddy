@@ -11,24 +11,24 @@ const ViewSwitcher = () => {
 
   return (
     <div className="lg:hidden flex justify-center mb-4 w-full">
-      <div className="bg-gray-200 rounded-lg p-1 inline-flex">
-        <button 
+      <div className="bg-surface-100 rounded-xl p-1 inline-flex">
+        <button
           onClick={() => toggleView('trains')}
-          className={`px-4 py-2 rounded-md text-sm font-medium ${
-            activeView === 'trains' 
-            ? 'bg-white text-blue-600 shadow-sm' 
-            : 'text-gray-600 hover:bg-gray-300'
+          className={`px-5 py-2 rounded-lg text-sm font-semibold transition-all duration-200 ${
+            activeView === 'trains'
+              ? 'bg-white text-primary-600 shadow-sm'
+              : 'text-surface-500 hover:text-surface-700'
           }`}
           disabled={!list}
         >
           Trains
         </button>
-        <button 
+        <button
           onClick={() => toggleView('buddies')}
-          className={`px-4 py-2 rounded-md text-sm font-medium ${
-            activeView === 'buddies' 
-            ? 'bg-white text-blue-600 shadow-sm' 
-            : 'text-gray-600 hover:bg-gray-300'
+          className={`px-5 py-2 rounded-lg text-sm font-semibold transition-all duration-200 ${
+            activeView === 'buddies'
+              ? 'bg-white text-primary-600 shadow-sm'
+              : 'text-surface-500 hover:text-surface-700'
           }`}
           disabled={!suggestions}
         >

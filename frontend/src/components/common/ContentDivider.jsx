@@ -9,7 +9,7 @@ const ContentDivider = () => {
   }
 
   return (
-    <div className="hidden lg:flex w-px h-[600px] bg-gray-400 justify-center"></div>
+    <div className="hidden lg:flex w-px bg-gradient-to-b from-transparent via-surface-300 to-transparent min-h-[400px] self-stretch" />
   );
 };
 

@@ -1,102 +1,211 @@
-# BuddyOnTrain
+# TrainBuddy 🛤️🤝
 
-BuddyOnTrain is a web application that helps train travelers find companions for their journey. Users can search for trains, list themselves on specific journeys, and connect with other travelers on the same route.
+A web app to help train travelers find and connect with companions on their journey.
 
-## Dummy Search
+---
 
-- **fromStation** - CSMT
-- **toStation** - NZM
-- **date** - 10/03/2025
+## 🚀 Live Demo
 
-## Features
+- 🔗 [Live App](https://trainbuddy.onrender.com)
+- 🎥 [Video Walkthrough](https://youtu.be/your-demo-link)
 
-- **Train Search**: Find trains by specifying boarding station, destination station, and travel date
-- **Travel Status Management**: List yourself on a train journey with a single click
-- **Buddy Finder**: Find other travelers who will be on the same train journey
-- **Friend Requests**: Send connection invitations to fellow travelers
-- **User Profiles**: View other travelers' profiles including profession and bio
-- **Authentication System**: Secure login and registration with JWT
+---
 
-## Tech Stack
+## ✨ Features
 
-### Frontend
-- React.js
-- Tailwind CSS for styling
-- Axios for API requests
-- React Router for navigation
+- **Train Search**: Real-time search by boarding station, destination, and date
+- **Travel Status**: One-click listing/unlisting on journeys
+- **Buddy Finder**: Discover fellow travelers on the same train
+- **Friend Requests**: Send, accept, or reject connection invites
+- **Real-time Chat**: WebSocket-powered messaging with travel buddies
+- **User Profiles**: View bio, profession, and travel preferences
+- **Secure Auth**: JWT-based login, bcrypt password hashing
 
-### Backend
-- Node.js with Express
-- MongoDB with Mongoose for data storage
-- JWT for authentication
-- bcrypt for password hashing
+---
 
-## Installation
+## 🔍 Tech Stack
 
-### Prerequisites
-- Node.js (v14 or higher)
-- MongoDB (v4 or higher)
-- npm or yarn
+| Layer    | Technology                   |
+| -------- | ---------------------------- |
+| Frontend | React.js, Vite, Tailwind CSS |
+| UI/UX    | Framer Motion, Tailwind CSS  |
+| Backend  | Node.js, Express.js          |
+| Database | MongoDB, Mongoose            |
+| Realtime | Socket.io                    |
+| Auth     | JWT, bcrypt                  |
 
-### Setup
+---
 
-1. Clone the repository
-```bash
-git clone https://github.com/yourusername/BuddyOnTrain.git
-cd BuddyOnTrain
-```
+## 🏗️ Installation & Setup
 
-2. Install backend dependencies
-```bash
-cd backend
-npm install
-```
+1. **Clone Repo**
+   ```bash
+   git clone https://github.com/yourusername/TrainBuddy.git
+   cd TrainBuddy
+   ```
+2. **Backend Setup**
+   ```bash
+   cd backend
+   npm install
+   cp .env.example .env
+   npm run dev
+   ```
+3. **Frontend Setup**
+   ```bash
+   cd ../frontend
+   npm install
+   npm run dev
+   ```
+4. **Access** the app at `http://localhost:5173` (frontend) and `http://localhost:4000` (API)
 
-3. Install frontend dependencies
-```bash
-cd ../frontend
-npm install
-```
+---
 
-4. Create a .env file in the backend directory with the following variables:
-```
-MONGO_URI=mongodb://0.0.0.0/trains
-JWT_SECRET=your-secret-key
+## 🔧 Configuration
+
+Create a `.env` file in the **backend** folder (use `.env.example`):
+
+```env
+MONGO_URI=<your_mongodb_connection_string>
+JWT_SECRET=<your_jwt_secret>
 PORT=4000
+NODE_ENV=development
 ```
 
-5. Start the backend server
-```bash
-cd ../backend
-npm start
-```
+> **Tip:** For production, set `NODE_ENV=production` and secure your secrets externally.
 
-6. Start the frontend development server
-```bash
-cd ../frontend
-npm start
-```
-
-The application should now be running at `http://localhost:3000` (frontend) and `http://localhost:4000` (backend).
+---
 
 ## Usage Guide
 
 ### Searching for Trains
 1. Enter your boarding station, destination station, and travel date
-2. Click the "Search" button to view available trains
+2. Click the "Search Trains" button to view available trains
 
 ### Listing Yourself on a Train
 1. Find your train in search results
-2. Click the "List Yourself" button to make yourself discoverable to other travelers
-3. To remove yourself from a train, click the "Unlist Yourself" button
+2. Select Train Class of suitable train from the results.
+3. Click the "List Yourself" button to make yourself discoverable to other travelers
+4. To remove yourself from a train, click the "Unlist Yourself" button
 
 ### Finding Travel Buddies
 1. Enter the same search criteria (boarding station, destination station, date)
 2. Click the "Find Buddy" button
 3. View a list of travelers who will be on the same journey
-4. Send invitations to connect with potential travel companions
+4. Send friend requests to connect with potential travel companions
 
-## API Endpoints
+### Real-time Chat
+1. Once connected with a travel buddy, navigate to their profile
+2. Click "Start Chat" to begin a real-time conversation
+3. Messages are delivered instantly using WebSocket technology
+4. Chat history is preserved for future reference
+
+### Managing Friend Requests
+1. View incoming friend requests in your dashboard
+2. Accept or reject requests from other travelers
+3. Remove friends from your connections if needed
+
+## 📸 Screenshots
+
+&#x20;*Train search with autocomplete and date picker*
+
+&#x20;*Finding and chatting with travel companions*
+
+---
+
+## 🧠 What I Learned
+
+- Integrated Indian Railway API for live train data
+- Managed WebSocket connections for real-time chat
+- Implemented JWT auth with role-based route protection
+
+---
+
+## 🗂️ Project Structure
+
+```
+TrainBuddy/
+├── package.json                 # Root package.json with build scripts
+├── README.md                    # Project documentation
+├── requirements.txt             # Python dependencies (if any)
+├── .env                        # Environment variables
+├── .gitignore                  # Git ignore file
+├── backend/                    # Backend server code
+│   ├── index.js               # Main server file
+│   ├── package.json           # Backend dependencies
+│   ├── assets/                # Static assets
+│   │   └── railway_stations.json
+│   ├── config/                # Configuration files
+│   │   └── db.js             # Database connection
+│   ├── controllers/           # Route controllers
+│   │   ├── findTrains.js
+│   │   ├── friendController.js
+│   │   ├── messageController.js
+│   │   ├── stationController.js
+│   │   └── userController.js
+│   ├── middleware/            # Custom middleware
+│   │   └── authMiddleware.js
+│   ├── models/               # Database models
+│   │   ├── FriendRequest.js
+│   │   ├── Message.js
+│   │   └── User.js
+│   ├── routes/               # API routes
+│   │   ├── findTrainRoute.js
+│   │   ├── friendRoute.js
+│   │   ├── messageRoute.js
+│   │   ├── stationRoute.js
+│   │   └── userRoute.js
+│   └── utils/                # Utility functions
+│       └── railwayStations.js
+└── frontend/                 # Frontend React app
+    ├── package.json          # Frontend dependencies
+    ├── vite.config.js        # Vite configuration
+    ├── tailwind.config.js    # Tailwind CSS config
+    ├── index.html            # Entry HTML file
+    ├── src/
+    │   ├── App.jsx           # Main App component
+    │   ├── main.jsx          # Entry point
+    │   ├── index.css         # Global styles
+    │   ├── components/       # Reusable components
+    │   │   ├── layout/       # Layout components
+    │   │   ├── common/       # Common UI components
+    │   │   ├── train-search/ # Train search components
+    │   │   └── buddy-system/ # Buddy system components
+    │   ├── pages/            # Page components
+    │   │   ├── Home.jsx
+    │   │   ├── Login.jsx
+    │   │   ├── Dashboard.jsx
+    │   │   ├── ChatPage.jsx
+    │   │   ├── FriendsPage.jsx
+    │   │   ├── UserProfile.jsx
+    │   │   └── ProfileSetup.jsx
+    │   ├── context/          # React Context
+    │   │   └── Context.jsx
+    │   └── utils/            # Utility functions
+    │       └── axios.js      # API configuration
+    └── public/               # Static assets
+        ├── vite.svg
+        └── bg.png
+```
+
+---
+
+## 📄 License
+
+ISC License. See [package.json](./package.json) for details.
+
+---
+
+## 🤝 Contributing
+
+1. Fork the repo
+2. Create a branch (`git checkout -b feature/your-feature`)
+3. Commit changes (`git commit -m 'Add feature'`)
+4. Push (`git push origin feature/your-feature`)
+5. Open a Pull Request
+
+---
+
+## 🛠️ API Endpoints
 
 ### Authentication
 - `POST /api/users/register` - Register a new user
@@ -118,32 +227,18 @@ The application should now be running at `http://localhost:3000` (frontend) and 
 - `POST /api/friends/request` - Send a friend request
 - `GET /api/friends/requests` - Get all friend requests
 - `POST /api/friends/respond` - Respond to a friend request
+- `DELETE /api/friends/remove` - Remove a friend
 
-## Database Models
+### Messaging
+- `GET /api/messages/:userId` - Get chat history with a user
+- `POST /api/messages/send` - Send a message (HTTP alternative)
+- `PUT /api/messages/:userId/read` - Mark messages as read
 
-### User
-- Username, email, password
-- Profile fields (name, age, profession, bio)
-- Travel status (boarding station, destination station, travel date)
-- Friends list
+### Real-time Features (WebSocket)
+- `joinChat` - Join a chat room for real-time messaging
+- `sendMessage` - Send a message in real-time
+- `receiveMessage` - Receive messages from other users
+- `userOnline`/`userOffline` - User presence notifications
 
-### FriendRequest
-- Sender, receiver
-- Status (pending, accepted, rejected)
+---
 
-### Message
-- Sender, receiver
-- Content
-- Timestamp
-- Read status
-
-## Future Enhancements
-
-- Real-time chat between connected travelers
-- Train delay notifications
-- Group creation for travelers on the same train
-- Train reviews and ratings
-- Integration with train booking platforms
-
-## Contributors
-- [Your Name](https://github.com/yourusername) 

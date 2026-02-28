@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import axiosInstance, { setToken } from '../utils/axios'
+import { Button, Input, Alert } from '../components/ui'
 
 const Login = () => {
   const [isLogin, setIsLogin] = useState(true)
@@ -30,7 +31,6 @@ const Login = () => {
         ? '/api/users/login' 
         : '/api/users/register'
       
-      // For registration, ensure email is included
       if (!isLogin && !formData.email) {
         setError('Email is required for registration')
         setLoading(false)
@@ -40,21 +40,18 @@ const Login = () => {
       const response = await axiosInstance.post(endpoint, formData)
       
       if (response.data.success) {
-        // Store token and userId in localStorage
         setToken(response.data.token)
         localStorage.setItem('userId', response.data.userId)
         
         if (isLogin) {
-          // If login, redirect to home page
           navigate('/')
         } else {
-          // If registration, redirect to profile setup
           navigate('/profile-setup')
         }
-      }    } catch (error) {
+      }
+    } catch (error) {
       console.error('Login/Register error:', error);
       
-      // Handle different types of errors
       if (error.code === 'ECONNABORTED') {
         setError('Request timed out. Please check your internet connection and try again.');
       } else if (error.code === 'ERR_NETWORK') {
@@ -75,102 +72,138 @@ const Login = () => {
   const toggleForm = () => {
     setIsLogin(!isLogin)
     setError('')
-    
-    // Reset form data when toggling
-    setFormData({
-      username: '',
-      email: '',
-      password: ''
-    })
+    setFormData({ username: '', email: '', password: '' })
   }
 
   return (
-    <div className="min-h-screen bg-gray-900 flex items-center justify-center p-4">
-      <div className="bg-gray-800 p-8 rounded-lg shadow-md w-full max-w-md">
-        <h2 className='text-white text-2xl font-bold mb-6 text-center'>
-          {isLogin ? 'Login' : 'Register'}
-        </h2>
-        
-        {error && (
-          <div className="bg-red-500 text-white p-3 rounded mb-4 text-sm">
-            {error}
-          </div>
-        )}
-        
-        <form className="space-y-6" onSubmit={handleSubmit}>
-          <div>
-            <label className="block text-gray-300 mb-2 text-sm font-medium" htmlFor="username">
-              Username
-            </label>
-            <input 
-              type="text" 
-              id="username"
-              value={formData.username}
-              onChange={handleChange}
-              className="w-full px-4 py-2.5 bg-gray-700 border border-gray-600 rounded-lg 
-                       text-white placeholder-gray-400 focus:outline-none focus:border-blue-500 
-                       focus:ring-2 focus:ring-blue-500 transition-colors"
-              placeholder="Enter your username"
-              required
-            />
-          </div>
+    <div className="min-h-screen bg-gradient-to-br from-surface-900 via-surface-800 to-surface-900 flex items-center justify-center p-4 relative overflow-hidden">
+      {/* Decorative elements */}
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute top-1/4 -left-20 w-72 h-72 bg-primary-600/10 rounded-full blur-3xl" />
+        <div className="absolute bottom-1/4 -right-20 w-72 h-72 bg-accent-600/10 rounded-full blur-3xl" />
+      </div>
 
-          {!isLogin && (
+      <div className="relative w-full max-w-md animate-fade-in">
+        {/* Logo */}
+        <Link to="/" className="flex items-center justify-center gap-2 mb-8 group">
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary-500 to-primary-700 flex items-center justify-center shadow-lg">
+            <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+            </svg>
+          </div>
+          <span className="text-2xl font-bold text-white tracking-tight">
+            Train<span className="text-primary-400">Buddy</span>
+          </span>
+        </Link>
+
+        {/* Card */}
+        <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-8 shadow-2xl">
+          <div className="text-center mb-6">
+            <h2 className="text-2xl font-bold text-white">
+              {isLogin ? 'Welcome back' : 'Create account'}
+            </h2>
+            <p className="text-sm text-surface-400 mt-1">
+              {isLogin ? 'Sign in to find your travel buddies' : 'Join the TrainBuddy community'}
+            </p>
+          </div>
+          
+          {error && (
+            <Alert variant="error" className="mb-5 !bg-red-500/10 !border-red-500/20 !text-red-300">
+              {error}
+            </Alert>
+          )}
+          
+          <form className="space-y-5" onSubmit={handleSubmit}>
             <div>
-              <label className="block text-gray-300 mb-2 text-sm font-medium" htmlFor="email">
-                Email
+              <label className="block text-sm font-medium text-surface-300 mb-1.5" htmlFor="username">
+                Username
               </label>
               <input 
-                type="email" 
-                id="email"
-                value={formData.email}
+                type="text" 
+                id="username"
+                value={formData.username}
                 onChange={handleChange}
-                className="w-full px-4 py-2.5 bg-gray-700 border border-gray-600 rounded-lg 
-                         text-white placeholder-gray-400 focus:outline-none focus:border-blue-500 
-                         focus:ring-2 focus:ring-blue-500 transition-colors"
-                placeholder="Enter your email"
+                className="w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-xl
+                         text-white placeholder-surface-500 text-sm
+                         focus:outline-none focus:border-primary-500/50 focus:ring-2 focus:ring-primary-500/20
+                         transition-all duration-200"
+                placeholder="Enter your username"
                 required
               />
             </div>
-          )}
 
-          <div>
-            <label className="block text-gray-300 mb-2 text-sm font-medium" htmlFor="password">
-              Password
-            </label>
-            <input 
-              type="password" 
-              id="password"
-              value={formData.password}
-              onChange={handleChange}
-              className="w-full px-4 py-2.5 bg-gray-700 border border-gray-600 rounded-lg 
-                       text-white placeholder-gray-400 focus:outline-none focus:border-blue-500 
-                       focus:ring-2 focus:ring-blue-500 transition-colors"
-              placeholder="Enter your password"
-              required
-            />
-          </div>
+            {!isLogin && (
+              <div className="animate-fade-in">
+                <label className="block text-sm font-medium text-surface-300 mb-1.5" htmlFor="email">
+                  Email
+                </label>
+                <input 
+                  type="email" 
+                  id="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  className="w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-xl
+                           text-white placeholder-surface-500 text-sm
+                           focus:outline-none focus:border-primary-500/50 focus:ring-2 focus:ring-primary-500/20
+                           transition-all duration-200"
+                  placeholder="Enter your email"
+                  required
+                />
+              </div>
+            )}
 
-          <button
-            type="submit"
-            disabled={loading}
-            className={`w-full py-2.5 ${loading ? 'bg-blue-400' : 'bg-blue-600 hover:bg-blue-700'} text-white font-semibold 
-                     rounded-lg transition-colors duration-300 focus:outline-none 
-                     focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-800`}
-          >
-            {loading ? 'Processing...' : isLogin ? 'Sign In' : 'Register'}
-          </button>
+            <div>
+              <label className="block text-sm font-medium text-surface-300 mb-1.5" htmlFor="password">
+                Password
+              </label>
+              <input 
+                type="password" 
+                id="password"
+                value={formData.password}
+                onChange={handleChange}
+                className="w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-xl
+                         text-white placeholder-surface-500 text-sm
+                         focus:outline-none focus:border-primary-500/50 focus:ring-2 focus:ring-primary-500/20
+                         transition-all duration-200"
+                placeholder="Enter your password"
+                required
+              />
+            </div>
 
-          <div className="text-center mt-4">
-            <button 
-              type="button"
-              onClick={toggleForm}
-              className="text-gray-400 hover:text-blue-500 text-sm transition-colors"
+            <button
+              type="submit"
+              disabled={loading}
+              className={`w-full py-3 rounded-xl font-semibold text-sm transition-all duration-200
+                ${loading 
+                  ? 'bg-primary-600/50 cursor-not-allowed' 
+                  : 'bg-primary-600 hover:bg-primary-500 active:bg-primary-700 shadow-lg shadow-primary-600/25 hover:shadow-primary-500/30'
+                } text-white focus:outline-none focus:ring-2 focus:ring-primary-500/50 focus:ring-offset-2 focus:ring-offset-surface-900`}
             >
-              {isLogin ? "Don't have an account? Sign up" : "Already have an account? Sign in"}
+              {loading ? (
+                <span className="flex items-center justify-center gap-2">
+                  <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                  </svg>
+                  Processing...
+                </span>
+              ) : isLogin ? 'Sign in' : 'Create account'}
             </button>
-          </div>
-        </form>
+
+            <div className="text-center pt-2">
+              <button 
+                type="button"
+                onClick={toggleForm}
+                className="text-surface-400 hover:text-primary-400 text-sm transition-colors duration-200"
+              >
+                {isLogin ? "Don't have an account? " : "Already have an account? "}
+                <span className="font-medium text-primary-400">
+                  {isLogin ? 'Sign up' : 'Sign in'}
+                </span>
+              </button>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
   )

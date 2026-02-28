@@ -189,12 +189,11 @@ const UserProfile = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-100">
+      <div className="min-h-screen bg-surface-50">
         <Navbar />
-        <div className="container mx-auto py-8 px-4">
-          <div className="flex justify-center items-center h-64">
-            <div className="text-2xl text-gray-600">Loading profile...</div>
-          </div>
+        <div className="flex flex-col items-center justify-center min-h-screen gap-3">
+          <div className="w-8 h-8 border-3 border-primary-200 border-t-primary-600 rounded-full animate-spin" />
+          <p className="text-sm text-surface-500">Loading profile...</p>
         </div>
       </div>
     );
@@ -202,162 +201,169 @@ const UserProfile = () => {
 
   if (error || !user) {
     return (
-      <div className="min-h-screen bg-gray-100">
+      <div className="min-h-screen bg-surface-50">
         <Navbar />
-        <div className="container mx-auto py-8 px-4">
-          <div className="flex justify-center items-center h-64">
-            <div className="text-2xl text-red-600">{error || 'User not found'}</div>
+        <div className="flex items-center justify-center min-h-screen px-4">
+          <div className="flex items-center gap-3 bg-red-50 border border-red-200 text-red-700 px-5 py-4 rounded-xl">
+            <svg className="w-5 h-5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+            </svg>
+            <span className="text-sm">{error || 'User not found'}</span>
           </div>
         </div>
       </div>
     );
   }
 
+  // Avatar
+  const initials = user.name
+    ? user.name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2)
+    : '?';
+
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-surface-50">
       <Navbar />
-      <div className="container mx-auto py-8 px-4">
-        <div className="bg-white rounded-lg shadow-md overflow-hidden max-w-4xl mx-auto">
-          <div className="bg-blue-600 p-6 text-white">
-            <h1 className="text-3xl font-bold">{user.name}</h1>
-            {user.profession && (
-              <p className="text-blue-100 mt-2">{user.profession}</p>
-            )}
+      <div className="max-w-3xl mx-auto px-4 pt-24 pb-8 animate-fade-in">
+        <div className="card overflow-hidden !rounded-2xl">
+          {/* Profile header */}
+          <div className="bg-gradient-to-r from-primary-600 to-primary-700 px-6 py-8 text-white">
+            <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4">
+              <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center flex-shrink-0">
+                <span className="text-2xl font-bold text-white">{initials}</span>
+              </div>
+              <div className="text-center sm:text-left flex-1">
+                <h1 className="text-2xl font-bold">{user.name}</h1>
+                {user.profession && (
+                  <p className="text-primary-200 mt-1">{user.profession}</p>
+                )}
+              </div>
+
+              {/* Friend action buttons */}
+              <div className="flex gap-2 flex-shrink-0">
+                {requestStatus === 'none' && (
+                  <button
+                    onClick={() => handleFriendRequest('send')}
+                    disabled={processingRequest}
+                    className="bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-xl text-sm font-semibold transition-all disabled:opacity-50"
+                  >
+                    {processingRequest ? 'Sending...' : 'Add Friend'}
+                  </button>
+                )}
+
+                {requestStatus === 'outgoing' && (
+                  <button
+                    onClick={() => handleFriendRequest('cancel')}
+                    disabled={processingRequest}
+                    className="bg-red-500/20 hover:bg-red-500/30 text-white px-4 py-2 rounded-xl text-sm font-semibold transition-all disabled:opacity-50"
+                  >
+                    {processingRequest ? 'Cancelling...' : 'Cancel Request'}
+                  </button>
+                )}
+
+                {requestStatus === 'incoming' && (
+                  <>
+                    <button
+                      onClick={() => handleFriendRequest('accept')}
+                      disabled={processingRequest}
+                      className="bg-accent-500/20 hover:bg-accent-500/30 text-white px-4 py-2 rounded-xl text-sm font-semibold transition-all disabled:opacity-50"
+                    >
+                      {processingRequest ? '...' : 'Accept'}
+                    </button>
+                    <button
+                      onClick={() => handleFriendRequest('reject')}
+                      disabled={processingRequest}
+                      className="bg-red-500/20 hover:bg-red-500/30 text-white px-4 py-2 rounded-xl text-sm font-semibold transition-all disabled:opacity-50"
+                    >
+                      Reject
+                    </button>
+                  </>
+                )}
+
+                {requestStatus === 'friends' && (
+                  <>
+                    <span className="badge-accent">Friends</span>
+                    <button onClick={navigateToChat} className="bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-xl text-sm font-semibold transition-all">
+                      Chat
+                    </button>
+                    <button
+                      onClick={handleRemoveFriend}
+                      disabled={processingRequest}
+                      className="bg-red-500/20 hover:bg-red-500/30 text-white px-3 py-2 rounded-xl text-sm transition-all disabled:opacity-50"
+                    >
+                      {processingRequest ? '...' : 'Remove'}
+                    </button>
+                  </>
+                )}
+              </div>
+            </div>
           </div>
-          
-          <div className="p-6">
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
-              <div>
-                <h2 className="text-xl font-semibold text-gray-800">Profile Information</h2>
-              </div>
-              
-              {/* Friend Request Button Section */}
-              {requestStatus === 'none' && (
-                <button
-                  onClick={() => handleFriendRequest('send')}
-                  disabled={processingRequest}
-                  className="mt-4 md:mt-0 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors disabled:bg-blue-400"
-                >
-                  {processingRequest ? 'Processing...' : 'Send Friend Request'}
-                </button>
-              )}
-              
-              {requestStatus === 'outgoing' && (
-                <button
-                  onClick={() => handleFriendRequest('cancel')}
-                  disabled={processingRequest}
-                  className="mt-4 md:mt-0 bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors disabled:bg-red-400"
-                >
-                  {processingRequest ? 'Processing...' : 'Cancel Request'}
-                </button>
-              )}
-              
-              {requestStatus === 'incoming' && (
-                <div className="mt-4 md:mt-0 flex gap-2">
-                  <button
-                    onClick={() => handleFriendRequest('accept')}
-                    disabled={processingRequest}
-                    className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors disabled:bg-green-400"
-                  >
-                    {processingRequest ? 'Processing...' : 'Accept'}
-                  </button>
-                  <button
-                    onClick={() => handleFriendRequest('reject')}
-                    disabled={processingRequest}
-                    className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors disabled:bg-red-400"
-                  >
-                    {processingRequest ? 'Processing...' : 'Reject'}
-                  </button>
+
+          {/* Profile content */}
+          <div className="p-5 md:p-6">
+            <h2 className="section-title mb-4">Profile Information</h2>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              {[
+                { label: 'Username', value: user.username },
+                { label: 'Age', value: user.age },
+                { label: 'Email', value: user.email },
+                { label: 'Phone', value: user.phone },
+              ].filter(item => item.value).map(({ label, value }) => (
+                <div key={label} className="bg-surface-50 rounded-xl p-3">
+                  <p className="text-xs font-medium text-surface-500 mb-0.5">{label}</p>
+                  <p className="text-sm font-semibold text-surface-900">{value}</p>
                 </div>
-              )}
-              
-              {requestStatus === 'friends' && (
-                <div className="mt-4 md:mt-0 flex items-center gap-3">
-                  <span className="bg-green-100 text-green-800 px-4 py-2 rounded-lg">
-                    Friends
-                  </span>
-                  <button
-                    onClick={navigateToChat}
-                    className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors"
-                  >
-                    Chat
-                  </button>
-                  <button
-                    onClick={handleRemoveFriend}
-                    disabled={processingRequest}
-                    className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors disabled:bg-red-400"
-                  >
-                    {processingRequest ? 'Removing...' : 'Remove Friend'}
-                  </button>
-                </div>
-              )}
+              ))}
             </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <h3 className="text-gray-500 text-sm mb-1">Username</h3>
-                <p className="text-gray-800">{user.username}</p>
-              </div>
-              
-              {user.age && (
-                <div>
-                  <h3 className="text-gray-500 text-sm mb-1">Age</h3>
-                  <p className="text-gray-800">{user.age}</p>
-                </div>
-              )}
-              
-              {user.email && (
-                <div>
-                  <h3 className="text-gray-500 text-sm mb-1">Email</h3>
-                  <p className="text-gray-800">{user.email}</p>
-                </div>
-              )}
-              
-              {user.phone && (
-                <div>
-                  <h3 className="text-gray-500 text-sm mb-1">Phone</h3>
-                  <p className="text-gray-800">{user.phone}</p>
-                </div>
-              )}
-            </div>
-            
+
             {user.bio && (
-              <div className="mt-6">
-                <h3 className="text-gray-500 text-sm mb-1">Bio</h3>
-                <p className="text-gray-800 whitespace-pre-line">{user.bio}</p>
+              <div className="mt-4 bg-surface-50 rounded-xl p-3">
+                <p className="text-xs font-medium text-surface-500 mb-1">Bio</p>
+                <p className="text-sm text-surface-800 whitespace-pre-line">{user.bio}</p>
               </div>
             )}
-            
+
+            {/* Travel Status */}
             {user.travelStatus && user.travelStatus.boardingStation && user.travelStatus.isActive && (
               <div className="mt-6">
-                <h3 className="text-lg font-semibold text-gray-800 mb-3">Current Travel Status</h3>
-                <div className="bg-blue-50 p-4 rounded-lg">
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div>
-                      <h4 className="text-gray-500 text-sm mb-1">From Station</h4>
-                      <p className="text-gray-800">{user.travelStatus.boardingStation}</p>
+                <h3 className="text-sm font-bold text-surface-900 mb-3 flex items-center gap-2">
+                  <svg className="w-4 h-4 text-primary-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                  </svg>
+                  Current Travel
+                </h3>
+
+                <div className="bg-primary-50/60 rounded-xl p-4 border border-primary-100">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex-1">
+                      <p className="text-sm font-semibold text-surface-800">{user.travelStatus.boardingStation}</p>
                     </div>
-                    <div>
-                      <h4 className="text-gray-500 text-sm mb-1">To Station</h4>
-                      <p className="text-gray-800">{user.travelStatus.destinationStation}</p>
+                    <div className="flex items-center mx-3">
+                      <div className="w-2 h-2 rounded-full bg-primary-400" />
+                      <div className="w-10 h-px bg-primary-300" />
+                      <svg className="w-3 h-3 text-primary-400 -ml-0.5" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clipRule="evenodd" />
+                      </svg>
                     </div>
-                    <div>
-                      <h4 className="text-gray-500 text-sm mb-1">Date</h4>
-                      <p className="text-gray-800">{new Date(user.travelStatus.travelDate).toLocaleDateString()}</p>
+                    <div className="flex-1 text-right">
+                      <p className="text-sm font-semibold text-surface-800">{user.travelStatus.destinationStation}</p>
                     </div>
+                  </div>
+
+                  <div className="flex flex-wrap gap-2 pt-2 border-t border-primary-100">
+                    <span className="text-xs text-primary-700 bg-primary-100 px-2 py-1 rounded-md">
+                      {new Date(user.travelStatus.travelDate).toLocaleDateString()}
+                    </span>
                     {user.travelStatus.trainNumber && (
-                      <div>
-                        <h4 className="text-gray-500 text-sm mb-1">Train</h4>
-                        <p className="text-gray-800">
-                          {user.travelStatus.trainNumber}
-                        </p>
-                      </div>
+                      <span className="text-xs text-primary-700 bg-primary-100 px-2 py-1 rounded-md">
+                        Train: {user.travelStatus.trainNumber}
+                      </span>
                     )}
                     {user.travelStatus.preferredClass && (
-                      <div>
-                        <h4 className="text-gray-500 text-sm mb-1">Class</h4>
-                        <p className="text-gray-800">{user.travelStatus.preferredClass}</p>
-                      </div>
+                      <span className="badge-primary text-[10px]">
+                        {user.travelStatus.preferredClass}
+                      </span>
                     )}
                   </div>
                 </div>

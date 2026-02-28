@@ -1,371 +1,302 @@
 import React from 'react'
 import { Link, NavLink, useNavigate } from 'react-router-dom'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import axiosInstance, { removeToken, isAuthenticated } from '../../utils/axios'
+import { Avatar, Badge, Button } from '../ui'
 
 const Navbar = () => {
   const [user, setUser] = useState(null)
   const [loading, setLoading] = useState(true)
   const [invitations, setInvitations] = useState([])
   const [showNotifications, setShowNotifications] = useState(false)
-  const [menuOpen, setMenuOpen] = useState(false); // State for mobile menu
-  const [showProfileMenu, setShowProfileMenu] = useState(false); // State for profile menu
+  const [menuOpen, setMenuOpen] = useState(false)
+  const [showProfileMenu, setShowProfileMenu] = useState(false)
   const navigate = useNavigate()
+  const notifRef = useRef(null)
+  const profileRef = useRef(null)
 
-  // Fetch current user data from the API
-  const fetchUserData = async () => {
-    if (!isAuthenticated()) {
-      setLoading(false)
-      return
+  // Close dropdowns on outside click
+  useEffect(() => {
+    const handler = (e) => {
+      if (notifRef.current && !notifRef.current.contains(e.target)) setShowNotifications(false)
+      if (profileRef.current && !profileRef.current.contains(e.target)) setShowProfileMenu(false)
     }
-    
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [])
+
+  const fetchUserData = async () => {
+    if (!isAuthenticated()) { setLoading(false); return }
     try {
       const response = await axiosInstance.get('/api/users/me')
       if (response.data.success) {
         setUser(response.data.user)
-        // After fetching user data, get friend requests
         fetchFriendRequests()
       }
     } catch (error) {
       console.error('Error fetching user data:', error)
-      // If token is invalid, log the user out
-      if (error.response?.status === 401) {
-        handleLogout()
-      }
+      if (error.response?.status === 401) handleLogout()
     } finally {
       setLoading(false)
     }
   }
 
-  // Fetch friend requests
   const fetchFriendRequests = async () => {
     try {
       const response = await axiosInstance.get('/api/friends/requests')
-      if (response.data.success) {
-        // Store incoming requests
-        setInvitations(response.data.data.incoming || [])
-      }
+      if (response.data.success) setInvitations(response.data.data.incoming || [])
     } catch (error) {
       console.error('Error fetching friend requests:', error)
     }
   }
 
-  // Handle accepting a friend request
   const handleAcceptInvite = async (requestId) => {
     try {
-      const response = await axiosInstance.post('/api/friends/respond', {
-        requestId,
-        status: 'accepted'
-      })
-      
-      if (response.data.success) {
-        // Remove this invitation from the list
-        setInvitations(prev => prev.filter(inv => inv._id !== requestId))
-      }
-    } catch (error) {
-      console.error('Error accepting invitation:', error)
-    }
+      const response = await axiosInstance.post('/api/friends/respond', { requestId, status: 'accepted' })
+      if (response.data.success) setInvitations(prev => prev.filter(inv => inv._id !== requestId))
+    } catch (error) { console.error('Error accepting invitation:', error) }
   }
 
-  // Handle rejecting a friend request
   const handleRejectInvite = async (requestId) => {
     try {
-      const response = await axiosInstance.post('/api/friends/respond', {
-        requestId,
-        status: 'rejected'
-      })
-      
-      if (response.data.success) {
-        // Remove this invitation from the list
-        setInvitations(prev => prev.filter(inv => inv._id !== requestId))
-      }
-    } catch (error) {
-      console.error('Error rejecting invitation:', error)
-    }
+      const response = await axiosInstance.post('/api/friends/respond', { requestId, status: 'rejected' })
+      if (response.data.success) setInvitations(prev => prev.filter(inv => inv._id !== requestId))
+    } catch (error) { console.error('Error rejecting invitation:', error) }
   }
 
-  // Check authentication status and fetch user data on component mount
   useEffect(() => {
     fetchUserData()
-    
-    // Set up periodic refresh of friend requests (every 30 seconds)
     const interval = setInterval(() => {
-      if (isAuthenticated()) {
-        fetchFriendRequests()
-      }
+      if (isAuthenticated()) fetchFriendRequests()
     }, 30000)
-    
     return () => clearInterval(interval)
   }, [])
 
   const handleLogout = async () => {
     try {
-      // Only make API call if we have userId
       const userId = localStorage.getItem('userId')
-      if (userId) {
-        await axiosInstance.post('/api/users/logout', { userId })
-      }
-      
-      // Remove token and userId from localStorage
+      if (userId) await axiosInstance.post('/api/users/logout', { userId })
       removeToken()
-      
-      // Update state
       setUser(null)
-      
-      // Redirect to login page
       navigate('/login')
     } catch (error) {
       console.error('Logout error:', error)
-      // Even if API call fails, still clear local data
       removeToken()
       setUser(null)
       navigate('/login')
     }
   }
 
-  // Toggle notifications panel
-  const toggleNotifications = () => {
-    setShowNotifications(prev => !prev)
-  }
-
-  // Toggle mobile menu
-  const toggleMenu = () => {
-    setMenuOpen((prev) => !prev);
-  };
-
-  // Toggle profile menu
-  const toggleProfileMenu = () => {
-    setShowProfileMenu((prev) => !prev);
-  };
-
-  // Navigate to user's dashboard
-  const goToDashboard = () => {
-    navigate('/dashboard')
-  }
+  const toggleNotifications = () => { setShowNotifications(prev => !prev); setShowProfileMenu(false) }
+  const toggleMenu = () => setMenuOpen(prev => !prev)
+  const toggleProfileMenu = () => { setShowProfileMenu(prev => !prev); setShowNotifications(false) }
 
   return (
-    <div className='fixed top-0 left-0 right-0 z-[999] shadow-md bg-white pointer-events-auto'>
-      <div className='flex justify-between items-center py-4 px-6 container mx-auto'>
-        <h2 className='text-2xl lg:text-4xl font-bold text-blue-600'>TrainBuddy</h2>
-        <button
-          className="lg:hidden text-gray-600 hover:text-blue-600"
-          onClick={toggleMenu}
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-6 w-6"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
+    <nav className="fixed top-0 inset-x-0 z-[999] bg-white/80 backdrop-blur-lg border-b border-surface-200/60">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-16">
+          {/* Logo */}
+          <Link to="/" className="flex items-center gap-2 group">
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary-600 to-primary-700 flex items-center justify-center shadow-sm group-hover:shadow-md transition-shadow">
+              <svg className="w-4.5 h-4.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+              </svg>
+            </div>
+            <span className="text-xl font-bold text-surface-900 tracking-tight">
+              Train<span className="text-primary-600">Buddy</span>
+            </span>
+          </Link>
+
+          {/* Mobile hamburger */}
+          <button
+            className="lg:hidden p-2 rounded-lg text-surface-500 hover:bg-surface-100 transition-colors"
+            onClick={toggleMenu}
+            aria-label="Toggle menu"
           >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M4 6h16M4 12h16m-7 6h7"
-            />
-          </svg>
-        </button>
-        <div className='hidden lg:flex items-center gap-4'>
-          {loading ? (
-            <span className="text-gray-400">Loading...</span>
-          ) : user ? (
-            <>
-              {/* Notification Bell */}
-              <div className="relative">
-                <button 
-                  onClick={toggleNotifications}
-                  className='text-gray-600 hover:text-blue-600 transition-colors relative'
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-                  </svg>
-                  
-                  {/* Notification Badge - only show if there are invitations */}
-                  {invitations.length > 0 && (
-                    <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
-                      {invitations.length}
-                    </span>
-                  )}
-                </button>
-                
-                {/* Notification Panel */}
-                {showNotifications && (
-                  <div className="absolute right-0 mt-2 w-80 bg-white rounded-md shadow-lg z-[9999] overflow-hidden">
-                    <div className="py-2 px-4 bg-gray-100 border-b border-gray-200">
-                      <h3 className="text-sm font-semibold text-gray-700">Notifications</h3>
-                    </div>
-                    
-                    <div className="max-h-96 overflow-y-auto">
-                      {invitations.length > 0 ? (
-                        <div>
-                          {invitations.map(invitation => (
-                            <div key={invitation._id} className="py-2 px-4 border-b border-gray-100 hover:bg-gray-50">
-                              <div className="flex items-center justify-between">
-                                <div>
-                                  <p className="text-sm font-medium text-gray-900">
-                                    <span className="font-semibold">{invitation.sender.name || invitation.sender.username}</span> sent you a friend request
+            <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              {menuOpen
+                ? <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                : <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16m-7 6h7" />}
+            </svg>
+          </button>
+
+          {/* Desktop navigation */}
+          <div className="hidden lg:flex items-center gap-2">
+            {loading ? (
+              <div className="h-8 w-20 skeleton rounded-lg" />
+            ) : user ? (
+              <>
+                {/* Notification bell */}
+                <div className="relative" ref={notifRef}>
+                  <button
+                    onClick={toggleNotifications}
+                    className="relative p-2 rounded-lg text-surface-500 hover:text-surface-700 hover:bg-surface-100 transition-colors"
+                    aria-label="Notifications"
+                  >
+                    <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                    </svg>
+                    {invitations.length > 0 && (
+                      <span className="absolute top-1 right-1 w-4 h-4 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center ring-2 ring-white">
+                        {invitations.length}
+                      </span>
+                    )}
+                  </button>
+
+                  {/* Notification dropdown */}
+                  {showNotifications && (
+                    <div className="absolute right-0 mt-2 w-80 bg-white rounded-2xl shadow-xl border border-surface-200 overflow-hidden animate-fade-in-down z-[9999]">
+                      <div className="px-4 py-3 border-b border-surface-100">
+                        <h3 className="text-sm font-semibold text-surface-800">Notifications</h3>
+                      </div>
+                      <div className="max-h-80 overflow-y-auto">
+                        {invitations.length > 0 ? (
+                          invitations.map(invitation => (
+                            <div key={invitation._id} className="px-4 py-3 border-b border-surface-100 last:border-0 hover:bg-surface-50 transition-colors">
+                              <div className="flex items-start gap-3">
+                                <Avatar name={invitation.sender.name || invitation.sender.username} size="sm" />
+                                <div className="flex-1 min-w-0">
+                                  <p className="text-sm text-surface-800">
+                                    <span className="font-semibold">{invitation.sender.name || invitation.sender.username}</span>
+                                    {' '}sent a friend request
                                   </p>
                                   {invitation.sender.profession && (
-                                    <p className="text-xs text-gray-500 mt-1">{invitation.sender.profession}</p>
+                                    <p className="text-xs text-surface-500 mt-0.5">{invitation.sender.profession}</p>
                                   )}
-                                </div>
-                                <div className="flex gap-2 ml-2">
-                                  <button 
-                                    onClick={() => handleAcceptInvite(invitation._id)}
-                                    className="text-xs bg-green-500 text-white px-2 py-1 rounded hover:bg-green-600 transition-colors"
-                                  >
-                                    Accept
-                                  </button>
-                                  <button 
-                                    onClick={() => handleRejectInvite(invitation._id)}
-                                    className="text-xs bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600 transition-colors"
-                                  >
-                                    Reject
-                                  </button>
+                                  <div className="flex gap-2 mt-2">
+                                    <Button size="xs" variant="accent" onClick={() => handleAcceptInvite(invitation._id)}>Accept</Button>
+                                    <Button size="xs" variant="ghost" onClick={() => handleRejectInvite(invitation._id)}>Decline</Button>
+                                  </div>
                                 </div>
                               </div>
                             </div>
-                          ))}
-                        </div>
-                      ) : (
-                        <div className="py-6 text-center text-gray-500">
-                          No new notifications
-                        </div>
-                      )}
+                          ))
+                        ) : (
+                          <div className="py-10 text-center">
+                            <p className="text-sm text-surface-400">No new notifications</p>
+                          </div>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                )}
-              </div>
-              
-              {/* User Menu */}
-              <div className="relative">
-                <button
-                  onClick={toggleProfileMenu}
-                  className="text-gray-600 hover:text-blue-600 focus:outline-none"
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-8 w-8"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
+                  )}
+                </div>
+
+                {/* Profile menu */}
+                <div className="relative" ref={profileRef}>
+                  <button
+                    onClick={toggleProfileMenu}
+                    className="flex items-center gap-2 p-1.5 rounded-xl hover:bg-surface-100 transition-colors"
                   >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M5.121 17.804A4 4 0 018 16h8a4 4 0 012.879 1.804M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-                    />
-                  </svg>
-                </button>
-                {showProfileMenu && (
-                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-[9999]">
-                    <NavLink
-                      to="/dashboard"
-                      className="block py-2 px-4 text-gray-600 hover:text-blue-600"
-                      onClick={toggleProfileMenu}
-                    >
-                      Dashboard
-                    </NavLink>
-                    <NavLink
-                      to="/friends"
-                      className="block py-2 px-4 text-gray-600 hover:text-blue-600"
-                      onClick={toggleProfileMenu}
-                    >
-                      Friends
-                    </NavLink>
-                    <NavLink
-                      to="/chats"
-                      className="block py-2 px-4 text-gray-600 hover:text-blue-600"
-                      onClick={toggleProfileMenu}
-                    >
-                      Chats
-                    </NavLink>
-                    <button
-                      onClick={handleLogout}
-                      className="block w-full text-left py-2 px-4 text-gray-600 hover:text-red-600"
-                    >
-                      Logout
-                    </button>
-                  </div>
-                )}
-              </div>
-            </>
-          ) : (
-            <NavLink to="/login" className='text-gray-600 hover:text-blue-600 transition-colors'>Login</NavLink>
-          )}
+                    <Avatar name={user.name || user.username} size="sm" />
+                    <svg className={`w-4 h-4 text-surface-400 transition-transform duration-200 ${showProfileMenu ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </button>
+
+                  {showProfileMenu && (
+                    <div className="absolute right-0 mt-2 w-56 bg-white rounded-2xl shadow-xl border border-surface-200 overflow-hidden animate-fade-in-down z-[9999]">
+                      <div className="px-4 py-3 border-b border-surface-100">
+                        <p className="text-sm font-semibold text-surface-800 truncate">{user.name || user.username}</p>
+                        <p className="text-xs text-surface-500 truncate">{user.email}</p>
+                      </div>
+                      <div className="py-1">
+                        {[
+                          { to: '/dashboard', label: 'Dashboard', icon: 'M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zm10 0a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zm10 0a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z' },
+                          { to: '/friends', label: 'Friends', icon: 'M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z' },
+                        ].map(item => (
+                          <NavLink
+                            key={item.to}
+                            to={item.to}
+                            onClick={() => setShowProfileMenu(false)}
+                            className="flex items-center gap-3 px-4 py-2.5 text-sm text-surface-600 hover:bg-surface-50 hover:text-surface-900 transition-colors"
+                          >
+                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+                              <path strokeLinecap="round" strokeLinejoin="round" d={item.icon} />
+                            </svg>
+                            {item.label}
+                          </NavLink>
+                        ))}
+                      </div>
+                      <div className="border-t border-surface-100 py-1">
+                        <button
+                          onClick={handleLogout}
+                          className="flex items-center gap-3 w-full px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors"
+                        >
+                          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                          </svg>
+                          Log out
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </>
+            ) : (
+              <NavLink to="/login">
+                <Button variant="primary" size="sm">Sign in</Button>
+              </NavLink>
+            )}
+          </div>
         </div>
       </div>
+
+      {/* Mobile menu */}
       {menuOpen && (
-        <div className="lg:hidden bg-gray-100 shadow-md">
-          <NavLink
-            to="/"
-            className="block py-2 px-4 text-gray-600 hover:text-blue-600"
-            onClick={toggleMenu}
-          >
-            Home
-          </NavLink>
-          {loading ? (
-            <span className="block py-2 px-4 text-gray-400">Loading...</span>
-          ) : user ? (
-            <>
-              <button
-                onClick={toggleNotifications}
-                className="block py-2 px-4 text-gray-600 hover:text-blue-600"
-              >
-                Notifications
-              </button>
-              <button
-                onClick={toggleProfileMenu}
-                className="block py-2 px-4 text-gray-600 hover:text-blue-600"
-              >
-                Profile
-              </button>
-              {showProfileMenu && (
-                <div className="bg-gray-100 shadow-md">
-                  <NavLink
-                    to="/dashboard"
-                    className="block py-2 px-4 text-gray-600 hover:text-blue-600"
-                    onClick={toggleProfileMenu}
-                  >
-                    Dashboard
-                  </NavLink>
-                  <NavLink
-                    to="/friends"
-                    className="block py-2 px-4 text-gray-600 hover:text-blue-600"
-                    onClick={toggleProfileMenu}
-                  >
-                    Friends
-                  </NavLink>
-                  <NavLink
-                    to="/chats"
-                    className="block py-2 px-4 text-gray-600 hover:text-blue-600"
-                    onClick={toggleProfileMenu}
-                  >
-                    Chats
-                  </NavLink>
-                  <button
-                    onClick={handleLogout}
-                    className="block w-full text-left py-2 px-4 text-gray-600 hover:text-red-600"
-                  >
-                    Logout
-                  </button>
-                </div>
-              )}
-            </>
-          ) : (
+        <div className="lg:hidden border-t border-surface-200/60 bg-white/95 backdrop-blur-lg animate-fade-in-down">
+          <div className="px-4 py-3 space-y-1">
             <NavLink
-              to="/login"
-              className="block py-2 px-4 text-gray-600 hover:text-blue-600"
+              to="/"
+              className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-surface-600 hover:bg-surface-100 hover:text-surface-900 transition-colors"
               onClick={toggleMenu}
             >
-              Login
+              Home
             </NavLink>
-          )}
+            {loading ? (
+              <div className="px-3 py-2.5">
+                <div className="h-4 w-20 skeleton rounded" />
+              </div>
+            ) : user ? (
+              <>
+                <NavLink
+                  to="/dashboard"
+                  className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-surface-600 hover:bg-surface-100 hover:text-surface-900 transition-colors"
+                  onClick={toggleMenu}
+                >
+                  Dashboard
+                </NavLink>
+                <NavLink
+                  to="/friends"
+                  className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-surface-600 hover:bg-surface-100 hover:text-surface-900 transition-colors"
+                  onClick={toggleMenu}
+                >
+                  Friends
+                  {invitations.length > 0 && (
+                    <Badge variant="danger" size="sm">{invitations.length}</Badge>
+                  )}
+                </NavLink>
+                <div className="pt-2 border-t border-surface-100">
+                  <button
+                    onClick={() => { handleLogout(); toggleMenu() }}
+                    className="flex items-center gap-3 w-full px-3 py-2.5 rounded-xl text-sm font-medium text-red-600 hover:bg-red-50 transition-colors"
+                  >
+                    Log out
+                  </button>
+                </div>
+              </>
+            ) : (
+              <NavLink
+                to="/login"
+                className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-primary-600 hover:bg-primary-50 transition-colors"
+                onClick={toggleMenu}
+              >
+                Sign in
+              </NavLink>
+            )}
+          </div>
         </div>
       )}
-    </div>
+    </nav>
   )
 }
 
