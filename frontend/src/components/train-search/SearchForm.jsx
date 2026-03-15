@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import StationInput from "./StationInput";
 import { useTrainContext } from "../../context/Context";
 
-const SearchForm = () => {
+const SearchForm = ({ inline = false }) => {
+  const navigate = useNavigate();
   const {
     toStation,
     setToStation,
@@ -54,12 +56,14 @@ const SearchForm = () => {
     setShowTrainResults(true);
     toggleView("trains");
     searchTrains();
+    navigate('/results');
   };
 
   const handleFindBuddy = (e) => {
     e.preventDefault();
     toggleView("buddies");
     findBuddies();
+    navigate('/results');
   };
 
   const handleSwapStations = () => {
@@ -72,6 +76,96 @@ const SearchForm = () => {
   };
 
   const shouldShowCollapsedBar = searchInitiated && isSmallScreen;
+
+  // ── Inline (landing page) rendering ──────────────────────────
+  if (inline) {
+    return (
+      <div className="w-full">
+        <form className="flex flex-col gap-4" onSubmit={handleSearchTrains}>
+          {/* From station */}
+          <div>
+            <label className="block text-xs font-semibold text-surface-500 uppercase tracking-wider mb-1.5 ml-1">From</label>
+            <StationInput
+              value={fromStation}
+              onChange={setFromStation}
+              onStationSelect={(code, name) => { setFromStationCode(code); setFromStation(name); setError(null); }}
+              placeholder="Boarding station"
+              icon="origin"
+              className="input !py-3 !rounded-xl w-full"
+            />
+          </div>
+
+          {/* To station */}
+          <div>
+            <label className="block text-xs font-semibold text-surface-500 uppercase tracking-wider mb-1.5 ml-1">To</label>
+            <StationInput
+              value={toStation}
+              onChange={setToStation}
+              onStationSelect={(code, name) => { setToStationCode(code); setToStation(name); setError(null); }}
+              placeholder="Destination station"
+              icon="destination"
+              className="input !py-3 !rounded-xl w-full"
+            />
+          </div>
+
+          {/* Date */}
+          <div>
+            <label className="block text-xs font-semibold text-surface-500 uppercase tracking-wider mb-1.5 ml-1">Date</label>
+            <div className="relative">
+              <div className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none">
+                <svg className="w-4 h-4 text-surface-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+              </div>
+              <input
+                onChange={(e) => setSelectedDate(e.target.value)}
+                className="input pl-9 !py-3 !rounded-xl w-full"
+                value={selectedDate}
+                type="date"
+              />
+            </div>
+          </div>
+
+          {/* Buttons */}
+          <div className="flex flex-col gap-2.5 pt-1">
+            <button
+              onClick={handleSearchTrains}
+              className="btn-primary !py-3 w-full"
+              type="button"
+              disabled={loading}
+            >
+              {loading ? (
+                <><svg className="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>Searching…</>
+              ) : (
+                <><svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>Search Trains</>
+              )}
+            </button>
+            <button
+              onClick={handleFindBuddy}
+              className="btn-accent !py-3 w-full"
+              type="button"
+              disabled={loading}
+            >
+              {loading ? (
+                <><svg className="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>Finding…</>
+              ) : (
+                <><svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>Find Buddy</>
+              )}
+            </button>
+          </div>
+        </form>
+
+        {error && (
+          <div className="mt-3 flex items-center gap-2.5 px-4 py-3 bg-red-50 border border-red-200 rounded-xl text-sm text-red-700">
+            <svg className="w-4 h-4 flex-shrink-0 text-red-500" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+            </svg>
+            {error}
+          </div>
+        )}
+      </div>
+    );
+  }
 
   const formatDate = (dateString) => {
     if (!dateString) return '';
