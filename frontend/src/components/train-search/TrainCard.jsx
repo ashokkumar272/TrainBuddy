@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
 import axiosInstance from "../../utils/axios";
 import ClassInfo from "./ClassInfo";
 
@@ -153,126 +152,128 @@ const TrainCard = ({ train }) => {
     }
   };
 
+  const durationText = train.duration
+    ? `${Math.floor(train.duration / 60)}h ${train.duration % 60}m`
+    : null;
+
+  const trainName = train.trainName || train.train_name;
+  const trainNumber = train.trainNumber || train.train_number;
+  const fromCode = train.fromStation?.code || train.from;
+  const fromName = train.fromStation?.name || train.from_station_name;
+  const toCode = train.toStation?.code || train.to;
+  const toName = train.toStation?.name || train.to_station_name;
+  const departure = train.departureTime || train.from_std;
+  const arrival = train.arrivalTime || train.to_sta;
+
   return (
-    <li
-      key={train.trainNumber || train.train_number}
-      className="card-hover p-4 md:p-5 !rounded-xl relative animate-fade-in"
-    >
-      {/* Listed ribbon */}
+    <li className="bg-white w-full rounded-xl border border-surface-200 shadow-sm hover:shadow-md hover:border-surface-300 transition-all duration-200 overflow-hidden animate-fade-in">
       {isListed && listingSuccess && (
-        <div className="absolute top-0 right-0">
-          <div className="badge-accent !rounded-none !rounded-bl-lg !rounded-tr-xl text-xs font-semibold px-3 py-1">
-            Listed
-          </div>
-        </div>
+        <div className="h-0.5 bg-gradient-to-r from-accent-400 via-accent-500 to-accent-400" />
       )}
 
-      {/* Header: Train name + date */}
-      <div className="flex justify-between items-start mb-3">
-        <div>
-          <h3 className="text-base md:text-lg font-bold text-surface-900 leading-tight">
-            {train.trainName || train.train_name}
-          </h3>
-          <span className="text-xs text-primary-600 font-medium">
-            #{train.trainNumber || train.train_number}
-          </span>
-        </div>
-        <span className="badge-primary text-xs">
-          {train.train_date}
-        </span>
-      </div>
-
-      {/* Route: From → To */}
-      <div className="flex items-center justify-between mb-3">
-        <div className="flex-1">
-          <p className="font-semibold text-surface-900 text-sm md:text-base">
-            <span className="hidden md:inline">
-              {train.fromStation?.name || train.from_station_name}
-              <span className="text-surface-500 ml-1 text-xs">({train.fromStation?.code || train.from})</span>
-            </span>
-            <span className="md:hidden text-sm">{train.fromStation?.code || train.from}</span>
-          </p>
-          <p className="text-xs text-surface-500 font-medium mt-0.5">{train.departureTime || train.from_std}</p>
-        </div>
-
-        <div className="flex flex-col items-center mx-3">
-          <span className="text-[10px] text-surface-400 bg-surface-100 px-2 py-0.5 rounded-full mb-1">
-            {train.duration ? `${Math.floor(train.duration / 60)}h ${train.duration % 60}m` : 'N/A'}
-          </span>
-          <div className="flex items-center">
-            <div className="w-2 h-2 rounded-full bg-primary-500" />
-            <div className="w-16 md:w-24 h-px bg-primary-300" />
-            <svg className="w-3 h-3 text-primary-500 -ml-1" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clipRule="evenodd" />
-            </svg>
+      <div className="px-3.5 py-2.5">
+        {/* Row 1: Train name + number + date */}
+        <div className="flex items-center justify-between gap-2 mb-2">
+          <div className="flex items-center gap-2 min-w-0 flex-1">
+            <h3 className="text-sm font-bold text-surface-900 truncate leading-tight">{trainName}</h3>
+            {isListed && listingSuccess && (
+              <span className="inline-flex items-center gap-1 px-1.5 py-0.5 bg-accent-50 text-accent-700 border border-accent-200 rounded-full text-[9px] font-bold uppercase tracking-wide flex-shrink-0">
+                <span className="w-1 h-1 rounded-full bg-accent-500 animate-pulse" />
+                Listed
+              </span>
+            )}
+            <span className="text-[10px] font-mono text-surface-400 flex-shrink-0">#{trainNumber}</span>
           </div>
-          {train.distance && (
-            <span className="text-[10px] text-surface-400 mt-1">{train.distance} km</span>
+          {train.train_date && (
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-primary-50 border border-primary-100 rounded-md text-[10px] font-semibold text-primary-700 flex-shrink-0">
+              {train.train_date}
+            </span>
           )}
         </div>
 
-        <div className="flex-1 text-right">
-          <p className="font-semibold text-surface-900 text-sm md:text-base">
-            <span className="hidden md:inline">
-              {train.toStation?.name || train.to_station_name}
-              <span className="text-surface-500 ml-1 text-xs">({train.toStation?.code || train.to})</span>
-            </span>
-            <span className="md:hidden text-sm">{train.toStation?.code || train.to}</span>
-          </p>
-          <p className="text-xs text-surface-500 font-medium mt-0.5">{train.arrivalTime || train.to_sta}</p>
+        {/* Row 2: Route — compact inline */}
+        <div className="flex items-center gap-2 bg-surface-50 rounded-lg px-3 py-2 mb-2">
+          {/* Departure */}
+          <div className="flex-1 min-w-0">
+            <span className="text-sm font-bold text-surface-900 tabular-nums">{departure || '—'}</span>
+            <span className="text-[10px] text-surface-500 ml-1.5 font-mono uppercase">{fromCode}</span>
+            <p className="text-[10px] text-surface-500 truncate leading-tight mt-0.5">{fromName}</p>
+          </div>
+
+          {/* Journey line */}
+          <div className="flex flex-col items-center gap-0.5 flex-shrink-0 px-2">
+            {durationText && (
+              <span className="text-[9px] font-semibold text-surface-400 whitespace-nowrap">{durationText}</span>
+            )}
+            <div className="flex items-center gap-0.5">
+              <div className="w-1 h-1 rounded-full bg-primary-400" />
+              <div className="w-10 md:w-16 h-px bg-gradient-to-r from-primary-300 via-primary-400 to-primary-300" />
+              <div className="w-0 h-0 border-y-[3px] border-y-transparent border-l-[5px] border-l-primary-500" />
+            </div>
+            {train.distance && (
+              <span className="text-[9px] text-surface-400">{train.distance} km</span>
+            )}
+          </div>
+
+          {/* Arrival */}
+          <div className="flex-1 min-w-0 text-right">
+            <span className="text-sm font-bold text-surface-900 tabular-nums">{arrival || '—'}</span>
+            <span className="text-[10px] text-surface-500 ml-1.5 font-mono uppercase">{toCode}</span>
+            <p className="text-[10px] text-surface-500 truncate leading-tight mt-0.5">{toName}</p>
+          </div>
         </div>
-      </div>
 
-      {/* Class selection */}
-      <div className="border-t border-surface-100 pt-3">
-        <ClassInfo
-          train={train}
-          selectedClass={selectedClass}
-          onClassSelect={handleClassSelect}
-        />
-      </div>
+        {/* Row 3: Class selection */}
+        <div className="border-t border-surface-100 pt-2 mb-2">
+          <ClassInfo
+            train={train}
+            selectedClass={selectedClass}
+            onClassSelect={handleClassSelect}
+          />
+        </div>
 
-      {/* Action button */}
-      <div className="flex justify-center mt-3">
+        {/* Row 4: Action */}
         {isListed && listingSuccess ? (
-          <div className="flex flex-col items-center w-full gap-2">
-            <p className="text-xs text-accent-700 font-medium text-center">
-              You are listed in <span className="font-bold">{selectedClass}</span> class
-            </p>
-            <button
-              onClick={handleListYourself}
-              disabled={isListing}
-              className="btn-danger btn-sm w-full max-w-xs"
-            >
-              {isListing ? "Processing..." : "Unlist Yourself"}
+          <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1.5 px-2.5 py-1.5 bg-accent-50 border border-accent-200 rounded-lg flex-1 min-w-0">
+              <svg className="w-3 h-3 text-accent-600 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+              </svg>
+              <span className="text-[11px] text-accent-800 font-medium truncate">
+                Listed · <span className="font-bold">{selectedClass}</span>
+              </span>
+            </div>
+            <button onClick={handleListYourself} disabled={isListing} className="btn-danger btn-sm flex-shrink-0">
+              {isListing ? "…" : "Unlist"}
             </button>
           </div>
         ) : unlistSuccess ? (
-          <div className="flex items-center gap-2 px-4 py-2 bg-primary-50 border border-primary-200 rounded-xl text-sm text-primary-700 font-medium">
-            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+          <div className="flex items-center justify-center gap-1.5 px-3 py-1.5 bg-primary-50 border border-primary-100 rounded-lg text-xs text-primary-700 font-medium">
+            <svg className="w-3.5 h-3.5 text-primary-500" fill="currentColor" viewBox="0 0 20 20">
               <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
             </svg>
             Unlisted successfully
           </div>
         ) : selectedClass ? (
-          <button
-            onClick={handleListYourself}
-            disabled={isListing}
-            className="btn-primary w-full max-w-xs"
-          >
-            {isListing ? "Processing..." : "List Yourself on This Train"}
+          <button onClick={handleListYourself} disabled={isListing} className="btn-primary btn-sm w-full">
+            {isListing
+              ? <><svg className="animate-spin h-3.5 w-3.5" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" /></svg>Processing…</>
+              : <><svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" /></svg>List Yourself</>
+            }
           </button>
-        ) : null}
-      </div>
+        ) : (
+          <p className="text-center text-[10px] text-surface-400">↑ Select a class to list yourself</p>
+        )}
 
-      {listingError && (
-        <div className="mt-2 flex items-center gap-2 px-3 py-2 bg-red-50 border border-red-200 rounded-xl text-xs text-red-700">
-          <svg className="w-3.5 h-3.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-            <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-          </svg>
-          {listingError}
-        </div>
-      )}
+        {listingError && (
+          <div className="mt-1.5 flex items-center gap-1.5 px-2.5 py-1.5 bg-red-50 border border-red-200 rounded-lg text-[11px] text-red-700">
+            <svg className="w-3 h-3 flex-shrink-0 text-red-500" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+            </svg>
+            {listingError}
+          </div>
+        )}
+      </div>
     </li>
   );
 };

@@ -30,7 +30,7 @@ const Hero = () => {
         } ${
           bothVisible ? 'lg:justify-center' : 'lg:justify-around'
         }`}>
-          <div className={`w-full ${bothVisible ? 'lg:w-1/2 lg:flex-1' : 'lg:w-auto'}`}>
+          <div className={`w-full ${bothVisible ? 'lg:w-1/2 lg:flex-1' : ''}`}>
             <TrainSearchContainer />
           </div>
           {bothVisible && <ContentDivider />}
