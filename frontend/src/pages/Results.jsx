@@ -1,7 +1,8 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Navbar } from '../components/layout';
 import { TrainSearchContainer } from '../components/train-search';
+import SearchForm from '../components/train-search/SearchForm';
 import { BuddySystemContainer } from '../components/buddy-system';
 import { ContentDivider } from '../components/common';
 import { useTrainContext } from '../context/Context';
@@ -16,14 +17,17 @@ const Results = () => {
   const bothVisible = hasTrainResults && hasBuddyResults;
   const onlyBuddies = hasBuddyResults && !hasTrainResults;
 
-  // If no results in context (e.g. direct navigation), redirect home
-  useEffect(() => {
-    if (!hasAnyResults) {
-      navigate('/', { replace: true });
-    }
-  }, [hasAnyResults, navigate]);
-
-  if (!hasAnyResults) return null;
+  if (!hasAnyResults) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-surface-50 via-primary-50/30 to-surface-50 relative overflow-hidden">
+        <Navbar />
+        <div className="flex flex-col items-center justify-center min-h-screen gap-3">
+          <p className="text-sm text-surface-500">No results to display.</p>
+          <button onClick={() => navigate('/')} className="btn-primary btn-sm">Go Home</button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-surface-50 via-primary-50/30 to-surface-50 relative overflow-hidden">
@@ -33,10 +37,11 @@ const Results = () => {
       </div>
 
       <Navbar />
+      <SearchForm />
 
       <div className={`flex flex-col items-center relative w-full ${
         bothVisible ? 'lg:max-w-none' : 'max-w-6xl'
-      } mx-auto px-4 sm:px-6 gap-4 pt-20 lg:pt-16`}>
+      } mx-auto px-4 sm:px-6 gap-4 pt-32 lg:pt-36`}>
         {onlyBuddies ? (
           <>
             <div className="w-full">

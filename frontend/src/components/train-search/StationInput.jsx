@@ -19,6 +19,11 @@ const StationInput = ({
   const inputRef = useRef(null);
   const debounceRef = useRef(null);
 
+  // Sync local inputValue when external value prop changes (e.g. station swap)
+  useEffect(() => {
+    setInputValue(value || '');
+  }, [value]);
+
   // Flatten stations for keyboard navigation
   const allStations = suggestions.flatMap(cityData =>
     cityData.stations.map(s => ({ ...s, city: cityData.city }))

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axiosInstance from '../utils/axios';
 import { Navbar } from '../components/layout';
+import { PageLoading, PageError } from '../components/ui';
 
 const UserProfile = () => {
   const { userId } = useParams();
@@ -188,31 +189,11 @@ const UserProfile = () => {
   };
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-surface-50">
-        <Navbar />
-        <div className="flex flex-col items-center justify-center min-h-screen gap-3">
-          <div className="w-8 h-8 border-3 border-primary-200 border-t-primary-600 rounded-full animate-spin" />
-          <p className="text-sm text-surface-500">Loading profile...</p>
-        </div>
-      </div>
-    );
+    return <PageLoading message="Loading profile..." />;
   }
 
   if (error || !user) {
-    return (
-      <div className="min-h-screen bg-surface-50">
-        <Navbar />
-        <div className="flex items-center justify-center min-h-screen px-4">
-          <div className="flex items-center gap-3 bg-red-50 border border-red-200 text-red-700 px-5 py-4 rounded-xl">
-            <svg className="w-5 h-5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-            </svg>
-            <span className="text-sm">{error || 'User not found'}</span>
-          </div>
-        </div>
-      </div>
-    );
+    return <PageError message={error || 'User not found'} />;
   }
 
   // Avatar

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import axiosInstance, { isAuthenticated } from '../utils/axios'
+import { Alert } from '../components/ui'
 
 const ProfileSetup = () => {
   const [formData, setFormData] = useState({
@@ -115,12 +116,9 @@ const ProfileSetup = () => {
           </p>
 
           {error && (
-            <div className="flex items-center gap-2 bg-red-500/10 border border-red-500/20 text-red-400 p-3 rounded-xl mb-4 text-sm">
-              <svg className="w-4 h-4 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-              </svg>
+            <Alert variant="error" className="mb-4 !bg-red-500/10 !border-red-500/20 !text-red-400">
               {error}
-            </div>
+            </Alert>
           )}
 
           <form className="space-y-4" onSubmit={handleSubmit}>

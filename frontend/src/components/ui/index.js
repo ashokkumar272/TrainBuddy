@@ -6,3 +6,4 @@ export { default as Alert } from './Alert';
 export { default as Avatar } from './Avatar';
 export { default as EmptyState } from './EmptyState';
 export { Spinner, LoadingScreen, SkeletonBlock, SkeletonCard } from './Loading';
+export { PageLoading, PageError } from './PageStates';

@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axiosInstance, { isAuthenticated } from '../utils/axios';
+import { formatLastSeen } from '../utils/formatters';
 import { Navbar } from '../components/layout';
+import { PageLoading } from '../components/ui';
 
 const FriendsPage = () => {
   const [friends, setFriends] = useState([]);
@@ -59,18 +61,6 @@ const FriendsPage = () => {
     }
   };
 
-  const formatLastSeen = (lastSeen) => {
-    if (!lastSeen) return 'Never';
-    const date = new Date(lastSeen);
-    const now = new Date();
-    const diffInHours = Math.floor((now - date) / (1000 * 60 * 60));
-    
-    if (diffInHours < 1) return 'Just now';
-    if (diffInHours < 24) return `${diffInHours}h ago`;
-    if (diffInHours < 168) return `${Math.floor(diffInHours / 24)}d ago`;
-    return date.toLocaleDateString();
-  };
-
   const filteredFriends = friends.filter(friend =>
     (friend.name && friend.name.toLowerCase().includes(searchTerm.toLowerCase())) ||
     (friend.username && friend.username.toLowerCase().includes(searchTerm.toLowerCase())) ||
@@ -78,15 +68,7 @@ const FriendsPage = () => {
   );
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-surface-50">
-        <Navbar />
-        <div className="flex flex-col items-center justify-center min-h-screen gap-3">
-          <div className="w-8 h-8 border-3 border-primary-200 border-t-primary-600 rounded-full animate-spin" />
-          <p className="text-sm text-surface-500">Loading friends...</p>
-        </div>
-      </div>
-    );
+    return <PageLoading message="Loading friends..." />;
   }
 
   return (

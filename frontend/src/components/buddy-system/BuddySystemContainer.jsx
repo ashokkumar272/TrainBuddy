@@ -15,8 +15,6 @@ const BuddySystemContainer = () => {
 
   return (
     <div className={`w-full ${
-      onlyBuddies ? 'mt-2' : 'mt-2 lg:mt-0'
-    } ${
       suggestions && activeView !== 'buddies' ? 'hidden lg:block' : 'block'
     }`}>
       <Suggestions

@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import StationInput from "./StationInput";
 import { useTrainContext } from "../../context/Context";
+import useMediaQuery from "../../utils/useMediaQuery";
+import { Spinner } from "../ui";
 
 const SearchForm = ({ inline = false }) => {
   const navigate = useNavigate();
@@ -19,6 +21,8 @@ const SearchForm = ({ inline = false }) => {
     searchTrains,
     findBuddies,
     loading,
+    trainLoading,
+    buddyLoading,
     error,
     setError,
     setList,
@@ -34,14 +38,7 @@ const SearchForm = ({ inline = false }) => {
 
   const hasSearchResults = (showTrainResults && trains.length > 0) || suggestions;
   const [isFormCollapsed, setIsFormCollapsed] = useState(false);
-  const [isSmallScreen, setIsSmallScreen] = useState(false);
-
-  useEffect(() => {
-    const checkScreenSize = () => setIsSmallScreen(window.innerWidth < 1024);
-    checkScreenSize();
-    window.addEventListener('resize', checkScreenSize);
-    return () => window.removeEventListener('resize', checkScreenSize);
-  }, []);
+  const isSmallScreen = useMediaQuery('(max-width: 1023px)');
 
   useEffect(() => {
     if (searchInitiated && isSmallScreen) {
@@ -51,19 +48,18 @@ const SearchForm = ({ inline = false }) => {
     }
   }, [searchInitiated, isSmallScreen]);
 
-  const handleSearchTrains = (e) => {
+  const handleSearchTrains = async (e) => {
     e.preventDefault();
-    setShowTrainResults(true);
     toggleView("trains");
-    searchTrains();
-    navigate('/results');
+    const success = await searchTrains();
+    if (success) navigate('/results');
   };
 
-  const handleFindBuddy = (e) => {
+  const handleFindBuddy = async (e) => {
     e.preventDefault();
     toggleView("buddies");
-    findBuddies();
-    navigate('/results');
+    const success = await findBuddies();
+    if (success) navigate('/results');
   };
 
   const handleSwapStations = () => {
@@ -134,8 +130,8 @@ const SearchForm = ({ inline = false }) => {
               type="button"
               disabled={loading}
             >
-              {loading ? (
-                <><svg className="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>Searching…</>
+              {trainLoading ? (
+                <><Spinner size="sm" className="text-white" />Searching…</>
               ) : (
                 <><svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>Search Trains</>
               )}
@@ -146,8 +142,8 @@ const SearchForm = ({ inline = false }) => {
               type="button"
               disabled={loading}
             >
-              {loading ? (
-                <><svg className="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>Finding…</>
+              {buddyLoading ? (
+                <><Spinner size="sm" className="text-white" />Finding…</>
               ) : (
                 <><svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>Find Buddy</>
               )}
@@ -365,12 +361,9 @@ const SearchForm = ({ inline = false }) => {
                 type="button"
                 disabled={loading}
               >
-                {loading ? (
+                {trainLoading ? (
                   <>
-                    <svg className="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                    </svg>
+                    <Spinner size="sm" className="text-white" />
                     Searching…
                   </>
                 ) : (
@@ -389,12 +382,9 @@ const SearchForm = ({ inline = false }) => {
                 type="button"
                 disabled={loading}
               >
-                {loading ? (
+                {buddyLoading ? (
                   <>
-                    <svg className="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                    </svg>
+                    <Spinner size="sm" className="text-white" />
                     Finding…
                   </>
                 ) : (

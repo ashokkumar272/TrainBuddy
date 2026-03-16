@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axiosInstance from '../../utils/axios';
 import { useNavigate } from 'react-router-dom';
+import { Avatar } from '../ui';
 
 const Suggested = ({ id, name, profession, bio, isFriend: initialIsFriend, travelDetails }) => {
   const [inviting, setInviting] = useState(false);
@@ -177,16 +178,6 @@ const Suggested = ({ id, name, profession, bio, isFriend: initialIsFriend, trave
     navigate(`/chat/${id}`);
   };
 
-  // Generate avatar initials
-  const initials = name
-    ? name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2)
-    : '?';
-  const avatarColors = [
-    'bg-primary-500', 'bg-accent-500', 'bg-violet-500',
-    'bg-amber-500', 'bg-rose-500', 'bg-teal-500'
-  ];
-  const colorIndex = name ? name.charCodeAt(0) % avatarColors.length : 0;
-
   return (
     <div
       className="card-hover !rounded-xl cursor-pointer overflow-hidden animate-fade-in"
@@ -196,9 +187,7 @@ const Suggested = ({ id, name, profession, bio, isFriend: initialIsFriend, trave
       <div className="p-4">
         <div className="flex items-start gap-3">
           {/* Avatar */}
-          <div className={`w-10 h-10 rounded-xl ${avatarColors[colorIndex]} flex items-center justify-center flex-shrink-0`}>
-            <span className="text-white text-sm font-bold">{initials}</span>
-          </div>
+          <Avatar name={name} size="md" />
 
           {/* Name + profession */}
           <div className="flex-1 min-w-0">

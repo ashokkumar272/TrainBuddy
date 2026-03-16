@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axiosInstance from "../../utils/axios";
 import ClassInfo from "./ClassInfo";
+import { Spinner } from "../ui";
 
 const TrainCard = ({ train }) => {
   const [isListing, setIsListing] = useState(false);
@@ -257,7 +258,7 @@ const TrainCard = ({ train }) => {
         ) : selectedClass ? (
           <button onClick={handleListYourself} disabled={isListing} className="btn-primary btn-sm w-full">
             {isListing
-              ? <><svg className="animate-spin h-3.5 w-3.5" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" /></svg>Processing…</>
+              ? <><Spinner size="sm" className="text-white" />Processing…</>
               : <><svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" /></svg>List Yourself</>
             }
           </button>

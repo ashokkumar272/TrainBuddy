@@ -12,7 +12,9 @@ export const TrainProvider = ({ children }) => {
   const [list, setList] = useState(false);
   const [showTrainResults, setShowTrainResults] = useState(false); // Separate state for train results
   const [suggestions, setSuggestions] = useState(false);
-  const [buddies, setBuddies] = useState([]);  const [loading, setLoading] = useState(false);
+  const [buddies, setBuddies] = useState([]);  const [trainLoading, setTrainLoading] = useState(false);
+  const [buddyLoading, setBuddyLoading] = useState(false);
+  const loading = trainLoading || buddyLoading;
   const [error, setError] = useState(null);
   const [activeView, setActiveView] = useState('trains'); // 'trains' or 'buddies'
   const [searchInitiated, setSearchInitiated] = useState(false); // Track if any search has been initiated
@@ -27,19 +29,15 @@ export const TrainProvider = ({ children }) => {
       // Toggle if no specific view provided
       setActiveView(prev => prev === 'trains' ? 'buddies' : 'trains');
     }
-  };  // Automatically switch views when actions are performed
+  };  // Automatically switch views when only one result type is available
   useEffect(() => {
     if (showTrainResults && !suggestions) {
       setActiveView('trains');
     } else if (suggestions && !showTrainResults) {
       setActiveView('buddies');
-    } else if (suggestions && showTrainResults) {
-      // Both available, keep current view or default to trains if none set
-      if (activeView !== 'trains' && activeView !== 'buddies') {
-        setActiveView('trains');
-      }
     }
-  }, [showTrainResults, suggestions, activeView]);// Function to sort trains by exact station code matches with priority levels
+    // When both are available, preserve the user's explicit view choice
+  }, [showTrainResults, suggestions]);// Function to sort trains by exact station code matches with priority levels
   
   const sortTrainsByStationMatch = (trains, fromCode, toCode) => {
   if (!Array.isArray(trains)) return [];
@@ -94,11 +92,11 @@ export const TrainProvider = ({ children }) => {
   const searchTrains = async () => {
     if (!fromStationCode || !toStationCode || !selectedDate) {
       setError('Please select valid stations and date');
-      return;
+      return false;
     }
     
-    setSearchInitiated(true); // Mark that a search has been initiated
-    setLoading(true);
+    setSearchInitiated(true);
+    setTrainLoading(true);
     setError(null);
     
     const formattedDate = selectedDate.split("-").reverse().join("-");
@@ -108,36 +106,38 @@ export const TrainProvider = ({ children }) => {
       const result = response.data;
       console.log(result);
       if (result.status) {
-        // Sort trains to prioritize exact station code matches
         const sortedTrains = sortTrainsByStationMatch(result.data, fromStationCode, toStationCode);
         setTrains(sortedTrains);
-        setShowTrainResults(true); // Show train results
+        setShowTrainResults(true);
+        return true;
       } else {
         setError(result.message || 'Failed to fetch trains');
         setTrains([]);
         setShowTrainResults(false);
+        return false;
       }
     } catch (error) {
       console.error("Error fetching trains:", error);
       setError('Failed to fetch trains. Please try again.');
       setTrains([]);
       setShowTrainResults(false);
+      return false;
     } finally {
-      setLoading(false);
+      setTrainLoading(false);
     }
-  };  
+  };
   const findBuddies = async () => {
     if (!fromStationCode || !toStationCode || !selectedDate) {
       setError('Please select valid stations and date');
-      return;
+      return false;
     }
 
-    setSearchInitiated(true); // Mark that a search has been initiated
-    setLoading(true);
+    setSearchInitiated(true);
+    setBuddyLoading(true);
     setError(null);
 
     try {
-      const formattedDate = selectedDate; // Keep original YYYY-MM-DD format
+      const formattedDate = selectedDate;
       
       console.log("Finding buddies with params:", {
         from: fromStationCode,
@@ -146,14 +146,12 @@ export const TrainProvider = ({ children }) => {
         originalDate: selectedDate
       });
       
-      // Log the date objects for debugging
       console.log("Date objects:", {
         originalDate: new Date(selectedDate),
         formattedDate: new Date(formattedDate),
         isValidDate: !isNaN(new Date(formattedDate).getTime())
       });
       
-      // Make API request to find travel buddies
       const response = await axiosInstance.get('/api/users/travel-buddies', {
         params: {
           from: fromStationCode,
@@ -166,22 +164,19 @@ export const TrainProvider = ({ children }) => {
 
       if (response.data.success) {
         if (response.data.data && Array.isArray(response.data.data)) {
-          // Get current user ID from localStorage
           const currentUserId = localStorage.getItem('userId');
-          
-          // Filter out the current user from the buddies list
           const filteredBuddies = response.data.data.filter(buddy => buddy._id !== currentUserId);
-          
           setBuddies(filteredBuddies);
           console.log("Setting buddies (filtered):", filteredBuddies);
         } else {
           setBuddies([]);
           console.log("No buddies data in response or invalid format");
         }
-        // Show suggestions panel
         setSuggestions(true);
+        return true;
       } else {
         setError(response.data.message || 'Failed to find travel buddies');
+        return false;
       }
     } catch (error) {
       console.error('Error finding travel buddies:', error);
@@ -190,10 +185,11 @@ export const TrainProvider = ({ children }) => {
         'An error occurred. Please try again.'
       );
       setBuddies([]);
+      return false;
     } finally {
-      setLoading(false);
+      setBuddyLoading(false);
     }
-  };  return (
+  };return (
     <TrainContext.Provider
       value={{
         toStation,
@@ -218,6 +214,8 @@ export const TrainProvider = ({ children }) => {
         buddies,
         setBuddies,
         findBuddies,        loading,
+        trainLoading,
+        buddyLoading,
         error,
         setError,
         activeView,
