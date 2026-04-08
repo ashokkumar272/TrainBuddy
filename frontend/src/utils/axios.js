@@ -1,21 +1,25 @@
 import axios from 'axios';
 
-// Function to get the appropriate base URL
-const getBaseURL = () => {
-  // Use environment variable or fallback to deployed backend URL
-  return import.meta.env.VITE_API_BASE_URL || 'https://trainbuddy.onrender.com';
-};
+const defaultApiBaseURL = import.meta.env.MODE === 'development'
+  ? 'http://localhost:4000'
+  : 'https://trainbuddy.onrender.com';
 
-// Create an instance of axios with a base URL
+const defaultSocketURL = import.meta.env.MODE === 'development'
+  ? 'http://localhost:4000'
+  : 'https://trainbuddy.onrender.com';
+
+export const getApiBaseURL = () => import.meta.env.VITE_API_BASE_URL || defaultApiBaseURL;
+
+export const getSocketURL = () => import.meta.env.VITE_SOCKET_URL || defaultSocketURL;
+
 const axiosInstance = axios.create({
-  baseURL: getBaseURL(),
+  baseURL: getApiBaseURL(),
   headers: {
     'Content-Type': 'application/json',
   },
-  timeout: 15000, // Increased timeout for mobile networks
+  timeout: 15000,
 });
 
-// Add response interceptor for better error handling
 axiosInstance.interceptors.response.use(
   (response) => response,
   (error) => {
@@ -37,7 +41,6 @@ axiosInstance.interceptors.response.use(
   }
 );
 
-// Add a request interceptor to add auth token
 axiosInstance.interceptors.request.use(
   (config) => {
     const tokenData = localStorage.getItem('token');
@@ -51,7 +54,6 @@ axiosInstance.interceptors.request.use(
   }
 );
 
-// Helper functions for auth
 export const setToken = (token) => {
   if (token) {
     localStorage.setItem('token', token);

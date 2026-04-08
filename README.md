@@ -38,31 +38,29 @@ A web app to help train travelers find and connect with companions on their jour
 
 ## 🏗️ Installation & Setup
 
-1. **Clone Repo**
+1. **Install dependencies**
    ```bash
-   git clone https://github.com/yourusername/TrainBuddy.git
-   cd TrainBuddy
-   ```
-2. **Backend Setup**
-   ```bash
-   cd backend
    npm install
-   cp .env.example .env
-   npm run dev
+   npm install --prefix frontend
    ```
-3. **Frontend Setup**
+2. **Development mode**
    ```bash
-   cd ../frontend
-   npm install
    npm run dev
+   npm run dev --prefix frontend
    ```
-4. **Access** the app at `http://localhost:5173` (frontend) and `http://localhost:4000` (API)
+   The backend runs on `http://localhost:4000` and the frontend on `http://localhost:5173`.
+3. **Production mode**
+   ```bash
+   npm run build
+   npm start
+   ```
+   Build the frontend first, then start the backend with `NODE_ENV=production` set in the environment.
 
 ---
 
 ## 🔧 Configuration
 
-Create a `.env` file in the **backend** folder (use `.env.example`):
+Create a `.env` file in the project root for the backend:
 
 ```env
 MONGO_URI=<your_mongodb_connection_string>
@@ -71,7 +69,12 @@ PORT=4000
 NODE_ENV=development
 ```
 
-> **Tip:** For production, set `NODE_ENV=production` and secure your secrets externally.
+Frontend env files are already split by mode:
+
+- [frontend/.env.development](frontend/.env.development) for local development
+- [frontend/.env.production](frontend/.env.production) for production builds
+
+> **Tip:** Keep `NODE_ENV=development` locally and `NODE_ENV=production` in deployment.
 
 ---
 

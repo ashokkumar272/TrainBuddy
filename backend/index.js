@@ -12,7 +12,7 @@ const messageRoute = require('./routes/messageRoute');
 const connectToDB = require('./config/db')
 const Message = require('./models/Message');
 
-dotenv.config()
+dotenv.config({ path: path.join(__dirname, '..', '.env') })
 connectToDB()
 
 // Initialize railway stations data at startup
@@ -23,7 +23,10 @@ try {
   console.error('Failed to load railway stations data at startup:', error);
 }
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 4000;
+const isProduction = process.env.NODE_ENV === 'production';
+const projectRoot = path.resolve(__dirname, '..');
+const frontendDistPath = path.join(projectRoot, 'frontend', 'dist');
 
 const app = express()
 
@@ -45,21 +48,16 @@ app.use('/api/users', userRoute)
 app.use('/api/friends', friendRoute)
 app.use('/api/messages', messageRoute)
 
-//-------------------deployement-----------------------
-
-const __dirname1 = path.resolve();
-if(process.env.NODE_ENV === 'production'){
-  app.use(express.static(path.join(__dirname1, "frontend/dist")));
-  app.get('*',(req,res)=>{
-    res.sendFile(path.resolve(__dirname1, "frontend", "dist", "index.html"));
+if (isProduction) {
+  app.use(express.static(frontendDistPath));
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(frontendDistPath, 'index.html'));
   });
 } else {
-  app.get("/", (req,res)=>{
-    res.send("API is running successfully");
+  app.get('/', (req, res) => {
+    res.send('BuddyOnTrain API is running in development mode');
   });
 }
-
-//-------------------deployement-----------------------
 
 const server = http.createServer(app);
 
@@ -112,5 +110,6 @@ io.on('connection', (socket) => {
 });
 
 server.listen(PORT, '0.0.0.0', () => {
+  console.log(`Server running on port ${PORT} in ${isProduction ? 'production' : 'development'} mode`);
 });
 

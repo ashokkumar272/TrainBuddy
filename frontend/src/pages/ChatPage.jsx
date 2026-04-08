@@ -1,17 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import axiosInstance, { isAuthenticated } from '../utils/axios';
+import axiosInstance, { getSocketURL, isAuthenticated } from '../utils/axios';
 import { Navbar } from '../components/layout';
 import { PageLoading, PageError } from '../components/ui';
 import io from 'socket.io-client';
 
-// Function to get the socket URL
-const getSocketURL = () => {
-  // Use environment variable or fallback to deployed backend URL
-  return import.meta.env.VITE_SOCKET_URL || 'https://trainbuddy.onrender.com';
-};
-
-// Initialize WebSocket connection
 const socket = io(getSocketURL());
 
 const ChatPage = () => {
